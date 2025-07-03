@@ -1,0 +1,10 @@
+# Rust/Cargo 编译产物
+/target/
+
+# VS Code 工作区设置（可选）
+.vscode/
+
+# 可选：忽略 IDE、系统临时文件
+**/*.rs.bk
+**/*.swp
+.DS_Store
