@@ -9,7 +9,7 @@ edition = "2021"
 
 [dependencies]
 bytemuck = "1.13.1"
-diskann = { path = "../../EvolveANN" }
+diskann = { path = "../../DiskANN" }
 num_cpus = "1.15.0"
 rayon = "1.7.0"
 vector = { path = "../../vector" }

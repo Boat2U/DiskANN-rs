@@ -11,7 +11,7 @@ members = [
   "cmd_drivers/build_disk_index",
   "cmd_drivers/build_and_insert_delete_memory_index",
   "vector",
-  "EvolveANN",
+  "DiskANN",
 ]
 resolver = "2"
 
