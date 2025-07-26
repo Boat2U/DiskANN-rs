@@ -809,7 +809,7 @@ where
         }
 
         // Use dataset's new memory interface
-        self.dataset.build_from_memory(vectors, vectors.len())?;
+        self.dataset.build_from_memory(vectors, vectors.len(), self.configuration.dim)?;
 
         println!("Using {} vectors from memory.", vectors.len());
 
@@ -870,7 +870,7 @@ where
         }
 
         // Use dataset's memory append functionality
-        self.dataset.append_from_memory(vectors, vectors.len())?;
+        self.dataset.append_from_memory(vectors, vectors.len(), self.configuration.dim)?;
         
         self.final_graph.extend(
             vectors.len(),
