@@ -21,7 +21,7 @@ pub trait ANNInmemIndex<T>: Sync + Send
 where
     T: Default + Copy + Sync + Send + Into<f32>,
 {
-    /// Build index
+    /// Build index from file
     fn build(&mut self, filename: &str, num_points_to_load: usize) -> ANNResult<()>;
 
     /// Save index
@@ -30,7 +30,7 @@ where
     /// Load index
     fn load(&mut self, filename: &str, expected_num_points: usize) -> ANNResult<()>;
 
-    /// insert index
+    /// Insert index from file
     fn insert(&mut self, filename: &str, num_points_to_insert: usize) -> ANNResult<()>;
 
     /// Search the index for K nearest neighbors of query using given L value, for benchmarking purposes
@@ -48,6 +48,24 @@ where
         vertex_ids_to_delete: Vec<u32>,
         num_points_to_delete: usize,
     ) -> ANNResult<()>;
+
+    // Memory-based interface methods (added for miniGU integration)
+    
+    /// Build index from memory vectors
+    /// Default implementation returns not supported error for backward compatibility
+    fn build_from_memory(&mut self, _vectors: &[&[T]]) -> ANNResult<()> {
+        Err(ANNError::log_index_error(
+            "build_from_memory not implemented".to_string(),
+        ))
+    }
+
+    /// Insert vectors from memory
+    /// Default implementation returns not supported error for backward compatibility
+    fn insert_from_memory(&mut self, _vectors: &[&[T]]) -> ANNResult<()> {
+        Err(ANNError::log_index_error(
+            "insert_from_memory not implemented".to_string(),
+        ))
+    }
 }
 
 /// Create Index<T, N> based on configuration
@@ -110,5 +128,237 @@ mod dataset_test {
         );
         let mut index = create_inmem_index::<f32>(config).unwrap();
         index.build("fake_file", 100).unwrap();
+    }
+
+    // Tests for memory-based interface methods
+
+    #[test]
+    fn test_create_index_memory_interface() {
+        let index_write_parameters = IndexWriteParametersBuilder::new(50, 4)
+            .with_alpha(1.2)
+            .with_saturate_graph(false)
+            .with_num_threads(1)
+            .build();
+
+        let config = IndexConfiguration::new(
+            Metric::L2,
+            128,  // 128 dimensions to match DIM_128 const generic
+            128,  // aligned dimension
+            100,
+            false,
+            0,
+            false,
+            0,
+            1f32,
+            index_write_parameters,
+        );
+        
+        let mut index = create_inmem_index::<f32>(config).unwrap();
+        
+        // Create test vectors (128 dimensions)
+        let mut vector1 = vec![0.0f32; 128];
+        let mut vector2 = vec![0.0f32; 128];
+        let mut vector3 = vec![0.0f32; 128];
+        
+        // Initialize with distinct values for each vector
+        for i in 0..128 {
+            vector1[i] = (i + 1) as f32 / 10.0;      // [0.1, 0.2, ..., 12.8]
+            vector2[i] = (i + 129) as f32 / 10.0;    // [12.9, 13.0, ..., 25.6]
+            vector3[i] = (i + 257) as f32 / 10.0;    // [25.7, 25.8, ..., 38.4]
+        }
+        
+        let vectors: Vec<&[f32]> = vec![&vector1, &vector2, &vector3];
+        
+        // Test build_from_memory
+        let result = index.build_from_memory(&vectors);
+        assert!(result.is_ok(), "build_from_memory should succeed: {:?}", result.err());
+        
+        // Test search functionality
+        let mut indices = vec![0u32; 2];
+        let search_result = index.search(&vector1, 2, 50, &mut indices);
+        assert!(search_result.is_ok(), "Search should succeed after build_from_memory");
+        
+        // The most similar vector should be the query itself (vector1 at index 0)
+        assert_eq!(indices[0], 0, "First result should be the query vector itself");
+    }
+
+    #[test]
+    fn test_build_from_memory_trait_default() {
+        // Create a mock implementation that doesn't override build_from_memory
+        struct MockIndex;
+        
+        impl ANNInmemIndex<f32> for MockIndex {
+            fn build(&mut self, _filename: &str, _num_points_to_load: usize) -> crate::common::ANNResult<()> {
+                Ok(())
+            }
+
+            fn save(&mut self, _filename: &str) -> crate::common::ANNResult<()> {
+                Ok(())
+            }
+
+            fn load(&mut self, _filename: &str, _expected_num_points: usize) -> crate::common::ANNResult<()> {
+                Ok(())
+            }
+
+            fn insert(&mut self, _filename: &str, _num_points_to_insert: usize) -> crate::common::ANNResult<()> {
+                Ok(())
+            }
+
+            fn search(
+                &self,
+                _query: &[f32],
+                _k_value: usize,
+                _l_value: u32,
+                _indices: &mut [u32],
+            ) -> crate::common::ANNResult<u32> {
+                Ok(0)
+            }
+
+            fn soft_delete(
+                &mut self,
+                _vertex_ids_to_delete: Vec<u32>,
+                _num_points_to_delete: usize,
+            ) -> crate::common::ANNResult<()> {
+                Ok(())
+            }
+            
+            // Note: build_from_memory and insert_from_memory will use default implementations
+        }
+        
+        let mut mock_index = MockIndex;
+        
+        // Test that default implementation returns "not implemented" error
+        let vector: [f32; 4] = [1.0, 2.0, 3.0, 4.0];
+        let vectors: Vec<&[f32]> = vec![&vector];
+        
+        let result = mock_index.build_from_memory(&vectors);
+        assert!(result.is_err(), "Default build_from_memory should return error");
+        
+        let error_msg = format!("{}", result.unwrap_err());
+        assert!(error_msg.contains("build_from_memory not implemented"), 
+            "Error should indicate method not implemented");
+    }
+
+    #[test]
+    fn test_insert_from_memory_trait_default() {
+        // Same mock implementation as above
+        struct MockIndex;
+        
+        impl ANNInmemIndex<f32> for MockIndex {
+            fn build(&mut self, _filename: &str, _num_points_to_load: usize) -> crate::common::ANNResult<()> {
+                Ok(())
+            }
+
+            fn save(&mut self, _filename: &str) -> crate::common::ANNResult<()> {
+                Ok(())
+            }
+
+            fn load(&mut self, _filename: &str, _expected_num_points: usize) -> crate::common::ANNResult<()> {
+                Ok(())
+            }
+
+            fn insert(&mut self, _filename: &str, _num_points_to_insert: usize) -> crate::common::ANNResult<()> {
+                Ok(())
+            }
+
+            fn search(
+                &self,
+                _query: &[f32],
+                _k_value: usize,
+                _l_value: u32,
+                _indices: &mut [u32],
+            ) -> crate::common::ANNResult<u32> {
+                Ok(0)
+            }
+
+            fn soft_delete(
+                &mut self,
+                _vertex_ids_to_delete: Vec<u32>,
+                _num_points_to_delete: usize,
+            ) -> crate::common::ANNResult<()> {
+                Ok(())
+            }
+        }
+        
+        let mut mock_index = MockIndex;
+        
+        // Test that default implementation returns "not implemented" error
+        let vector: [f32; 4] = [1.0, 2.0, 3.0, 4.0];
+        let vectors: Vec<&[f32]> = vec![&vector];
+        
+        let result = mock_index.insert_from_memory(&vectors);
+        assert!(result.is_err(), "Default insert_from_memory should return error");
+        
+        let error_msg = format!("{}", result.unwrap_err());
+        assert!(error_msg.contains("insert_from_memory not implemented"), 
+            "Error should indicate method not implemented");
+    }
+
+    #[test]
+    fn test_memory_interface_dimension_support() {
+        // Test different supported dimensions (104, 128, 256)
+        let dimensions = vec![(104, 104), (128, 128), (256, 256)];
+        
+        for (dim, aligned_dim) in dimensions {
+            let index_write_parameters = IndexWriteParametersBuilder::new(50, 4)
+                .with_alpha(1.2)
+                .with_saturate_graph(false)
+                .with_num_threads(1)
+                .build();
+
+            let config = IndexConfiguration::new(
+                Metric::L2,
+                dim,
+                aligned_dim,
+                100,
+                false,
+                0,
+                false,
+                0,
+                1f32,
+                index_write_parameters,
+            );
+            
+            let result = create_inmem_index::<f32>(config);
+            assert!(result.is_ok(), "Should create index for dimension {}", dim);
+            
+            // We can't easily test build_from_memory here due to const generic constraints
+            // but we've verified the index can be created
+        }
+    }
+
+    #[test]
+    fn test_memory_interface_invalid_dimension() {
+        let index_write_parameters = IndexWriteParametersBuilder::new(50, 4)
+            .with_alpha(1.2)
+            .with_saturate_graph(false)
+            .with_num_threads(1)
+            .build();
+
+        // Try to create index with unsupported dimension (300 > 256)
+        let config = IndexConfiguration::new(
+            Metric::L2,
+            300, // Unsupported dimension
+            300,
+            100,
+            false,
+            0,
+            false,
+            0,
+            1f32,
+            index_write_parameters,
+        );
+        
+        let result = create_inmem_index::<f32>(config);
+        assert!(result.is_err(), "Should fail to create index for unsupported dimension 300");
+        
+        match result {
+            Err(error) => {
+                let error_msg = format!("{}", error);
+                assert!(error_msg.contains("Invalid dimension"), "Error should mention invalid dimension");
+                assert!(error_msg.contains("300"), "Error should mention the invalid dimension value");
+            }
+            Ok(_) => panic!("Expected error but got success"),
+        }
     }
 }

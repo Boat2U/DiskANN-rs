@@ -98,6 +98,107 @@ where
         Ok(())
     }
 
+    /// Build the dataset from memory vectors
+    pub fn build_from_memory(&mut self, vectors: &[&[T]], num_points_to_load: usize) -> ANNResult<()> {
+        println!(
+            "Loading {} vectors from memory into dataset...",
+            num_points_to_load
+        );
+        
+        if num_points_to_load > vectors.len() {
+            return Err(ANNError::log_index_error(format!(
+                "Requested to load {} points but only {} vectors provided",
+                num_points_to_load, vectors.len()
+            )));
+        }
+        
+        if num_points_to_load > self.capacity / N {
+            return Err(ANNError::log_index_error(format!(
+                "Cannot load {} points to dataset of capacity {}",
+                num_points_to_load, self.capacity / N
+            )));
+        }
+        
+        self.num_active_pts = num_points_to_load;
+        self.num_points = num_points_to_load;
+        
+        self.copy_aligned_data_from_memory(&vectors[..num_points_to_load], 0)?;
+
+        println!("Dataset loaded from memory.");
+        Ok(())
+    }
+
+    /// Append the dataset from memory vectors
+    pub fn append_from_memory(
+        &mut self,
+        vectors: &[&[T]],
+        num_points_to_append: usize,
+    ) -> ANNResult<()> {
+        println!(
+            "Appending {} vectors from memory into dataset...",
+            num_points_to_append
+        );
+        
+        if num_points_to_append > vectors.len() {
+            return Err(ANNError::log_index_error(format!(
+                "Requested to append {} points but only {} vectors provided",
+                num_points_to_append, vectors.len()
+            )));
+        }
+        
+        if self.num_active_pts + num_points_to_append > self.capacity / N {
+            return Err(ANNError::log_index_error(format!(
+                "Cannot append {} points to dataset of capacity {}",
+                num_points_to_append, self.capacity / N
+            )));
+        }
+
+        let pts_offset = self.num_active_pts;
+        self.copy_aligned_data_from_memory(&vectors[..num_points_to_append], pts_offset)?;
+
+        self.num_active_pts += num_points_to_append;
+        self.num_points += num_points_to_append;
+
+        println!("Dataset appended from memory.");
+        Ok(())
+    }
+
+    /// Copy data from memory vectors into aligned storage
+    /// Similar to copy_aligned_data_from_file but operates on in-memory vectors
+    fn copy_aligned_data_from_memory(
+        &mut self,
+        vectors: &[&[T]],
+        pts_offset: usize,
+    ) -> ANNResult<()> {
+        let offset = pts_offset * N;
+
+        for (i, vector) in vectors.iter().enumerate() {
+            // Validate vector dimension
+            if vector.len() != N {
+                return Err(ANNError::log_index_error(format!(
+                    "Vector {} has dimension {} but expected {}",
+                    i, vector.len(), N
+                )));
+            }
+            
+            // Copy vector data to aligned storage
+            let start = offset + i * N;
+            let end = start + N;
+            
+            if end > self.data.len() {
+                return Err(ANNError::log_index_error(format!(
+                    "Cannot copy vector {}: storage capacity exceeded",
+                    i
+                )));
+            }
+            
+            // Direct copy from source vector to aligned storage
+            self.data[start..end].copy_from_slice(vector);
+        }
+
+        Ok(())
+    }
+
     /// Get vertex by id
     pub fn get_vertex(&'a self, id: u32) -> ANNResult<Vertex<'a, T, N>> {
         let start = id as usize * N;
@@ -276,5 +377,197 @@ mod dataset_test {
                 panic!("{}", e)
             }
         }
+    }
+
+    // Tests for memory-based interfaces
+    
+    #[test]
+    fn test_build_from_memory_basic() {
+        let mut dataset = InmemDataset::<f32, 8>::new(3, 1f32).unwrap();
+        
+        // Create test vectors
+        let vector1: [f32; 8] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        let vector2: [f32; 8] = [9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0];
+        let vector3: [f32; 8] = [17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0];
+        
+        let vectors: Vec<&[f32]> = vec![&vector1, &vector2, &vector3];
+        
+        // Build from memory
+        let result = dataset.build_from_memory(&vectors, 3);
+        assert!(result.is_ok(), "build_from_memory should succeed");
+        
+        // Verify data was loaded correctly
+        assert_eq!(dataset.num_active_pts, 3);
+        
+        let vertex0 = dataset.get_vertex(0).unwrap();
+        let vertex1 = dataset.get_vertex(1).unwrap();
+        let vertex2 = dataset.get_vertex(2).unwrap();
+        
+        assert_eq!(*vertex0.vector(), vector1);
+        assert_eq!(*vertex1.vector(), vector2);
+        assert_eq!(*vertex2.vector(), vector3);
+    }
+
+    #[test]
+    fn test_build_from_memory_vs_file() {
+        // Create test data
+        let vector1: [f32; 8] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        let vector2: [f32; 8] = [9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0];
+        let vectors: Vec<&[f32]> = vec![&vector1, &vector2];
+        
+        // Build from memory
+        let mut memory_dataset = InmemDataset::<f32, 8>::new(2, 1f32).unwrap();
+        memory_dataset.build_from_memory(&vectors, 2).unwrap();
+        
+        // Build from file (reuse the existing test file format)
+        let file_name = "dataset_memory_vs_file_test.bin";
+        let data: [u8; 72] = [
+            2, 0, 0, 0, 8, 0, 0, 0, 0x00, 0x00, 0x80, 0x3f, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00,
+            0x40, 0x40, 0x00, 0x00, 0x80, 0x40, 0x00, 0x00, 0xa0, 0x40, 0x00, 0x00, 0xc0, 0x40,
+            0x00, 0x00, 0xe0, 0x40, 0x00, 0x00, 0x00, 0x41, 0x00, 0x00, 0x10, 0x41, 0x00, 0x00,
+            0x20, 0x41, 0x00, 0x00, 0x30, 0x41, 0x00, 0x00, 0x40, 0x41, 0x00, 0x00, 0x50, 0x41,
+            0x00, 0x00, 0x60, 0x41, 0x00, 0x00, 0x70, 0x41, 0x00, 0x00, 0x80, 0x41,
+        ];
+        std::fs::write(file_name, data).expect("Failed to write test file");
+        
+        let mut file_dataset = InmemDataset::<f32, 8>::new(2, 1f32).unwrap();
+        copy_aligned_data_from_file(file_name, file_dataset.into_dto(), 0).unwrap();
+        fs::remove_file(file_name).expect("Failed to delete test file");
+        
+        // Compare results
+        assert_eq!(memory_dataset.num_active_pts, file_dataset.num_active_pts);
+        
+        for i in 0..2 {
+            let memory_vertex = memory_dataset.get_vertex(i).unwrap();
+            let file_vertex = file_dataset.get_vertex(i).unwrap();
+            assert_eq!(memory_vertex.vector(), file_vertex.vector(),
+                "Vertex {} should be identical between memory and file loading", i);
+        }
+    }
+
+    #[test]
+    fn test_append_from_memory() {
+        let mut dataset = InmemDataset::<f32, 8>::new(5, 1f32).unwrap();
+        
+        // Initial build
+        let vector1: [f32; 8] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        let vector2: [f32; 8] = [9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0];
+        let initial_vectors: Vec<&[f32]> = vec![&vector1, &vector2];
+        
+        dataset.build_from_memory(&initial_vectors, 2).unwrap();
+        assert_eq!(dataset.num_active_pts, 2);
+        
+        // Append more vectors
+        let vector3: [f32; 8] = [17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0];
+        let vector4: [f32; 8] = [25.0, 26.0, 27.0, 28.0, 29.0, 30.0, 31.0, 32.0];
+        let append_vectors: Vec<&[f32]> = vec![&vector3, &vector4];
+        
+        let result = dataset.append_from_memory(&append_vectors, 2);
+        assert!(result.is_ok(), "append_from_memory should succeed");
+        
+        // Verify total count
+        assert_eq!(dataset.num_active_pts, 4);
+        assert_eq!(dataset.num_points, 4);
+        
+        // Verify all vectors are present
+        let vertex0 = dataset.get_vertex(0).unwrap();
+        let vertex1 = dataset.get_vertex(1).unwrap();
+        let vertex2 = dataset.get_vertex(2).unwrap();
+        let vertex3 = dataset.get_vertex(3).unwrap();
+        
+        assert_eq!(*vertex0.vector(), vector1);
+        assert_eq!(*vertex1.vector(), vector2);
+        assert_eq!(*vertex2.vector(), vector3);
+        assert_eq!(*vertex3.vector(), vector4);
+    }
+
+    #[test]
+    fn test_build_from_memory_dimension_mismatch() {
+        let mut dataset = InmemDataset::<f32, 8>::new(2, 1f32).unwrap();
+        
+        // Create vectors with wrong dimensions
+        let vector_good: [f32; 8] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        let vector_bad: [f32; 4] = [9.0, 10.0, 11.0, 12.0];  // Wrong dimension
+        
+        let vectors: Vec<&[f32]> = vec![&vector_good, &vector_bad];
+        
+        let result = dataset.build_from_memory(&vectors, 2);
+        assert!(result.is_err(), "build_from_memory should fail with dimension mismatch");
+        
+        // Verify error message contains dimension information
+        let error_msg = result.unwrap_err().to_string();
+        assert!(error_msg.contains("dimension"), "Error should mention dimension mismatch");
+        assert!(error_msg.contains("8"), "Error should mention expected dimension");
+        assert!(error_msg.contains("4"), "Error should mention actual dimension");
+    }
+
+    #[test]
+    fn test_build_from_memory_empty_vectors() {
+        let mut dataset = InmemDataset::<f32, 8>::new(1, 1f32).unwrap();
+        
+        let empty_vectors: Vec<&[f32]> = vec![];
+        
+        let result = dataset.build_from_memory(&empty_vectors, 0);
+        assert!(result.is_ok(), "build_from_memory should handle empty vector set");
+        
+        assert_eq!(dataset.num_active_pts, 0);
+    }
+
+    #[test]
+    fn test_build_from_memory_capacity_exceeded() {
+        let mut dataset = InmemDataset::<f32, 8>::new(2, 1f32).unwrap(); // Capacity for 2 vectors
+        
+        // Try to load 3 vectors (exceeds capacity)
+        let vector1: [f32; 8] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        let vector2: [f32; 8] = [9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0];
+        let vector3: [f32; 8] = [17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0];
+        
+        let vectors: Vec<&[f32]> = vec![&vector1, &vector2, &vector3];
+        
+        let result = dataset.build_from_memory(&vectors, 3);
+        assert!(result.is_err(), "build_from_memory should fail when capacity is exceeded");
+        
+        let error_msg = result.unwrap_err().to_string();
+        assert!(error_msg.contains("capacity"), "Error should mention capacity limitation");
+    }
+
+    #[test]
+    fn test_append_from_memory_capacity_exceeded() {
+        let mut dataset = InmemDataset::<f32, 8>::new(3, 1f32).unwrap(); // Capacity for 3 vectors
+        
+        // First, build with 2 vectors
+        let vector1: [f32; 8] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        let vector2: [f32; 8] = [9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0];
+        let initial_vectors: Vec<&[f32]> = vec![&vector1, &vector2];
+        
+        dataset.build_from_memory(&initial_vectors, 2).unwrap();
+        
+        // Now try to append 2 more vectors (would exceed capacity of 3)
+        let vector3: [f32; 8] = [17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0];
+        let vector4: [f32; 8] = [25.0, 26.0, 27.0, 28.0, 29.0, 30.0, 31.0, 32.0];
+        let append_vectors: Vec<&[f32]> = vec![&vector3, &vector4];
+        
+        let result = dataset.append_from_memory(&append_vectors, 2);
+        assert!(result.is_err(), "append_from_memory should fail when capacity would be exceeded");
+        
+        let error_msg = result.unwrap_err().to_string();
+        assert!(error_msg.contains("capacity"), "Error should mention capacity limitation");
+    }
+
+    #[test]
+    fn test_build_from_memory_vector_count_mismatch() {
+        let mut dataset = InmemDataset::<f32, 8>::new(5, 1f32).unwrap();
+        
+        let vector1: [f32; 8] = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        let vector2: [f32; 8] = [9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0];
+        let vectors: Vec<&[f32]> = vec![&vector1, &vector2];
+        
+        // Request to load more vectors than provided
+        let result = dataset.build_from_memory(&vectors, 3);
+        assert!(result.is_err(), "build_from_memory should fail when requesting more vectors than provided");
+        
+        let error_msg = result.unwrap_err().to_string();
+        assert!(error_msg.contains("3"), "Error should mention requested count");
+        assert!(error_msg.contains("2"), "Error should mention actual count");
     }
 }
