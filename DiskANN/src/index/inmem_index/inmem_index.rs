@@ -909,6 +909,10 @@ where
 
         Ok(())
     }
+
+    fn get_num_active_pts(&self) -> usize {
+        self.num_active_pts
+    }
 }
 
 #[cfg(test)]

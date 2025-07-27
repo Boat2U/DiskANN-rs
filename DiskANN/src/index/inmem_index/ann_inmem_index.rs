@@ -66,6 +66,12 @@ where
             "insert_from_memory not implemented".to_string(),
         ))
     }
+
+    /// Get the number of active points in the index
+    /// Default implementation returns 0 for backward compatibility
+    fn get_num_active_pts(&self) -> usize {
+        0
+    }
 }
 
 /// Create Index<T, N> based on configuration
