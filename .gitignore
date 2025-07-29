@@ -42,3 +42,4 @@ CLAUDE.md
 # 测试生成的二进制数据
 **/*.bin
 **/*.data
+*.index
