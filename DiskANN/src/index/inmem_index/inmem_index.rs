@@ -773,7 +773,7 @@ where
     }
 
     // Memory-based interface implementation
-    
+
     fn build_from_memory(&mut self, vectors: &[&[T]]) -> ANNResult<()> {
         if vectors.is_empty() {
             return Err(ANNError::log_index_error(
@@ -786,7 +786,9 @@ where
             if vector.len() != self.configuration.dim {
                 return Err(ANNError::log_index_error(format!(
                     "ERROR: Vector {} has dimension {} but configuration expects {} dimension.",
-                    i, vector.len(), self.configuration.dim
+                    i,
+                    vector.len(),
+                    self.configuration.dim
                 )));
             }
         }
@@ -795,7 +797,8 @@ where
         if vectors.len() > self.configuration.max_points {
             return Err(ANNError::log_index_error(format!(
                 "ERROR: Cannot load {} vectors, index can support only {} points as specified in configuration.",
-                vectors.len(), self.configuration.max_points
+                vectors.len(),
+                self.configuration.max_points
             )));
         }
 
@@ -809,7 +812,8 @@ where
         }
 
         // Use dataset's new memory interface
-        self.dataset.build_from_memory(vectors, vectors.len(), self.configuration.dim)?;
+        self.dataset
+            .build_from_memory(vectors, vectors.len(), self.configuration.dim)?;
 
         println!("Using {} vectors from memory.", vectors.len());
 
@@ -831,7 +835,9 @@ where
             if vector.len() != self.configuration.dim {
                 return Err(ANNError::log_index_error(format!(
                     "ERROR: Vector {} has dimension {} but configuration expects {} dimension.",
-                    i, vector.len(), self.configuration.dim
+                    i,
+                    vector.len(),
+                    self.configuration.dim
                 )));
             }
         }
@@ -840,7 +846,8 @@ where
         if self.num_active_pts + vectors.len() > self.configuration.max_points {
             return Err(ANNError::log_index_error(format!(
                 "ERROR: Cannot insert {} vectors, would exceed maximum capacity of {} points.",
-                vectors.len(), self.configuration.max_points
+                vectors.len(),
+                self.configuration.max_points
             )));
         }
 
@@ -870,8 +877,9 @@ where
         }
 
         // Use dataset's memory append functionality
-        self.dataset.append_from_memory(vectors, vectors.len(), self.configuration.dim)?;
-        
+        self.dataset
+            .append_from_memory(vectors, vectors.len(), self.configuration.dim)?;
+
         self.final_graph.extend(
             vectors.len(),
             self.configuration.index_write_parameter.max_degree,
@@ -903,7 +911,10 @@ where
         }
 
         self.cleanup_graph(&visit_order)?;
-        println!("{}", timer.elapsed_seconds_for_step("Insert from memory time: "));
+        println!(
+            "{}",
+            timer.elapsed_seconds_for_step("Insert from memory time: ")
+        );
 
         self.print_stats()?;
 
@@ -1175,10 +1186,10 @@ mod index_test {
             .with_alpha(ALPHA)
             .with_num_threads(1)
             .build();
-        
+
         let config = IndexConfiguration::new(
             Metric::L2,
-            128,  // 128 dimensions to use DIM_128
+            128, // 128 dimensions to use DIM_128
             round_up(128u64, 16u64) as usize,
             100,
             false,
@@ -1188,9 +1199,9 @@ mod index_test {
             1.0f32,
             index_write_parameters,
         );
-        
+
         let mut index: InmemIndex<f32, DIM_128> = InmemIndex::new(config).unwrap();
-        
+
         // Create test vectors (128 dimensions)
         let mut test_vectors = Vec::new();
         for i in 0..10 {
@@ -1201,24 +1212,28 @@ mod index_test {
             }
             test_vectors.push(vector);
         }
-        
+
         // Convert to references
         let vector_refs: Vec<&[f32]> = test_vectors.iter().map(|v| v.as_slice()).collect();
-        
+
         // Build from memory
         let result = index.build_from_memory(&vector_refs);
-        assert!(result.is_ok(), "build_from_memory should succeed: {:?}", result.err());
-        
+        assert!(
+            result.is_ok(),
+            "build_from_memory should succeed: {:?}",
+            result.err()
+        );
+
         // Verify index properties
         assert_eq!(index.num_active_pts, 10, "Should have 10 active points");
         assert!(index.start < 10, "Start point should be valid");
-        
+
         // Test search functionality
         let query_vertex = index.dataset.get_vertex(0).unwrap();
         let mut indices = vec![0u32; 3];
         let search_result = index.search(&query_vertex, 3, 50, &mut indices);
         assert!(search_result.is_ok(), "Search should succeed");
-        
+
         // The first result should be the query vector itself (index 0)
         assert_eq!(indices[0], 0, "First result should be the query vector");
     }
@@ -1226,15 +1241,16 @@ mod index_test {
     #[test]
     fn test_inmem_index_build_memory_vs_file() {
         // Use the existing test data file for comparison
-        let (data_num, dim) = load_metadata_from_file(get_test_file_path(TEST_DATA_FILE).as_str()).unwrap();
-        
+        let (data_num, dim) =
+            load_metadata_from_file(get_test_file_path(TEST_DATA_FILE).as_str()).unwrap();
+
         let test_num_points = data_num.min(256);
-        
+
         let index_write_parameters = IndexWriteParametersBuilder::new(L, R)
             .with_alpha(ALPHA)
             .with_num_threads(1)
             .build();
-        
+
         let config = IndexConfiguration::new(
             Metric::L2,
             dim,
@@ -1247,46 +1263,57 @@ mod index_test {
             1.0f32,
             index_write_parameters.clone(),
         );
-        
+
         // Build index from file
         let mut file_index: InmemIndex<f32, DIM_128> = InmemIndex::new(config.clone()).unwrap();
-        file_index.build(get_test_file_path(TEST_DATA_FILE).as_str(), test_num_points).unwrap();
-        
+        file_index
+            .build(get_test_file_path(TEST_DATA_FILE).as_str(), test_num_points)
+            .unwrap();
+
         // Load vectors into memory for memory-based build
         let mut memory_vectors = Vec::new();
-        
+
         // Read vectors from dataset (after file build)
         for i in 0..test_num_points {
-            let vertex = file_index.dataset.get_vertex(i as u32).expect("Failed to get vertex from file index");
+            let vertex = file_index
+                .dataset
+                .get_vertex(i as u32)
+                .expect("Failed to get vertex from file index");
             memory_vectors.push(vertex.vector().to_vec());
         }
-        
+
         // Build index from memory
         let mut memory_index: InmemIndex<f32, DIM_128> = InmemIndex::new(config).unwrap();
         let vector_refs: Vec<&[f32]> = memory_vectors.iter().map(|v| v.as_slice()).collect();
         memory_index.build_from_memory(&vector_refs).unwrap();
-        
+
         // Compare basic properties
         assert_eq!(file_index.num_active_pts, memory_index.num_active_pts);
         assert_eq!(file_index.configuration.dim, memory_index.configuration.dim);
-        
+
         // Test that both indices produce similar search results
         if test_num_points > 0 {
             let query_vertex = file_index.dataset.get_vertex(0).unwrap();
-            
+
             let mut file_results = vec![0u32; 5];
             let mut memory_results = vec![0u32; 5];
-            
+
             let k = 5.min(test_num_points);
-            file_index.search(&query_vertex, k, 50, &mut file_results).unwrap();
-            
+            file_index
+                .search(&query_vertex, k, 50, &mut file_results)
+                .unwrap();
+
             // Get corresponding vertex from memory index for search
             let memory_query_vertex = memory_index.dataset.get_vertex(0).unwrap();
-            memory_index.search(&memory_query_vertex, k, 50, &mut memory_results).unwrap();
-            
+            memory_index
+                .search(&memory_query_vertex, k, 50, &mut memory_results)
+                .unwrap();
+
             // Results should be identical for the same data
-            assert_eq!(file_results, memory_results, 
-                "Memory and file-based indices should produce identical search results");
+            assert_eq!(
+                file_results, memory_results,
+                "Memory and file-based indices should produce identical search results"
+            );
         }
     }
 
@@ -1296,7 +1323,7 @@ mod index_test {
             .with_alpha(ALPHA)
             .with_num_threads(1)
             .build();
-        
+
         let config = IndexConfiguration::new(
             Metric::L2,
             128,
@@ -1309,9 +1336,9 @@ mod index_test {
             2.0f32, // Growth potential for insertion
             index_write_parameters,
         );
-        
+
         let mut index: InmemIndex<f32, DIM_128> = InmemIndex::new(config).unwrap();
-        
+
         // Create initial vectors
         let mut initial_vectors = Vec::new();
         for i in 0..5 {
@@ -1321,13 +1348,13 @@ mod index_test {
             }
             initial_vectors.push(vector);
         }
-        
+
         let initial_refs: Vec<&[f32]> = initial_vectors.iter().map(|v| v.as_slice()).collect();
-        
+
         // Build initial index
         index.build_from_memory(&initial_refs).unwrap();
         assert_eq!(index.num_active_pts, 5);
-        
+
         // Create additional vectors for insertion
         let mut insert_vectors = Vec::new();
         for i in 5..8 {
@@ -1337,24 +1364,34 @@ mod index_test {
             }
             insert_vectors.push(vector);
         }
-        
+
         let insert_refs: Vec<&[f32]> = insert_vectors.iter().map(|v| v.as_slice()).collect();
-        
+
         // Insert from memory
         let result = index.insert_from_memory(&insert_refs);
-        assert!(result.is_ok(), "insert_from_memory should succeed: {:?}", result.err());
-        
+        assert!(
+            result.is_ok(),
+            "insert_from_memory should succeed: {:?}",
+            result.err()
+        );
+
         // Verify total count
-        assert_eq!(index.num_active_pts, 8, "Should have 8 points after insertion");
-        
+        assert_eq!(
+            index.num_active_pts, 8,
+            "Should have 8 points after insertion"
+        );
+
         // Test search on inserted vectors
         let query_vertex = index.dataset.get_vertex(5).unwrap(); // First inserted vector
         let mut indices = vec![0u32; 3];
         let search_result = index.search(&query_vertex, 3, 50, &mut indices);
         assert!(search_result.is_ok(), "Search should find inserted vectors");
-        
+
         // The inserted vector should be findable
-        assert!(indices.contains(&5), "Should find the first inserted vector (index 5)");
+        assert!(
+            indices.contains(&5),
+            "Should find the first inserted vector (index 5)"
+        );
     }
 
     #[test]
@@ -1363,7 +1400,7 @@ mod index_test {
             .with_alpha(ALPHA)
             .with_num_threads(1)
             .build();
-        
+
         let config = IndexConfiguration::new(
             Metric::L2,
             128,
@@ -1376,23 +1413,32 @@ mod index_test {
             1.0f32,
             index_write_parameters,
         );
-        
+
         let mut index: InmemIndex<f32, DIM_128> = InmemIndex::new(config).unwrap();
-        
+
         // Create vectors with wrong dimensions
         let wrong_vector: Vec<f32> = vec![1.0; 64]; // 64 != 128
         let correct_vector: Vec<f32> = vec![2.0; 128];
-        
+
         let mixed_vectors: Vec<&[f32]> = vec![correct_vector.as_slice(), wrong_vector.as_slice()];
-        
+
         // Should fail due to dimension mismatch
         let result = index.build_from_memory(&mixed_vectors);
         assert!(result.is_err(), "Should fail with dimension mismatch");
-        
+
         let error_msg = result.unwrap_err().to_string();
-        assert!(error_msg.contains("dimension"), "Error should mention dimension");
-        assert!(error_msg.contains("128"), "Error should mention expected dimension");
-        assert!(error_msg.contains("64"), "Error should mention actual dimension");
+        assert!(
+            error_msg.contains("dimension"),
+            "Error should mention dimension"
+        );
+        assert!(
+            error_msg.contains("128"),
+            "Error should mention expected dimension"
+        );
+        assert!(
+            error_msg.contains("64"),
+            "Error should mention actual dimension"
+        );
     }
 
     #[test]
@@ -1401,7 +1447,7 @@ mod index_test {
             .with_alpha(ALPHA)
             .with_num_threads(1)
             .build();
-        
+
         let config = IndexConfiguration::new(
             Metric::L2,
             128,
@@ -1414,29 +1460,32 @@ mod index_test {
             1.0f32,
             index_write_parameters,
         );
-        
+
         let mut index: InmemIndex<f32, DIM_128> = InmemIndex::new(config).unwrap();
-        
+
         let empty_vectors: Vec<&[f32]> = vec![];
-        
+
         // Should fail with empty dataset
         let result = index.build_from_memory(&empty_vectors);
         assert!(result.is_err(), "Should fail with empty vectors");
-        
+
         let error_msg = result.unwrap_err().to_string();
-        assert!(error_msg.contains("0 vectors"), "Error should mention empty dataset");
+        assert!(
+            error_msg.contains("0 vectors"),
+            "Error should mention empty dataset"
+        );
     }
 
     #[test]
     fn test_inmem_index_memory_concurrent_access() {
         use std::sync::Arc;
         use std::thread;
-        
+
         let index_write_parameters = IndexWriteParametersBuilder::new(L, R)
             .with_alpha(ALPHA)
             .with_num_threads(1)
             .build();
-        
+
         let config = IndexConfiguration::new(
             Metric::L2,
             128,
@@ -1449,9 +1498,9 @@ mod index_test {
             1.0f32,
             index_write_parameters,
         );
-        
+
         let mut index: InmemIndex<f32, DIM_128> = InmemIndex::new(config).unwrap();
-        
+
         // Create test vectors
         let mut test_vectors = Vec::new();
         for i in 0..10 {
@@ -1461,27 +1510,29 @@ mod index_test {
             }
             test_vectors.push(vector);
         }
-        
+
         let vector_refs: Vec<&[f32]> = test_vectors.iter().map(|v| v.as_slice()).collect();
-        
+
         // Build index
         index.build_from_memory(&vector_refs).unwrap();
-        
+
         let index_arc = Arc::new(index);
-        
+
         // Concurrent search operations
-        let handles: Vec<_> = (0..4).map(|i| {
-            let index_clone = Arc::clone(&index_arc);
-            let query_idx = (i % test_vectors.len()) as u32;
-            
-            thread::spawn(move || {
-                let mut indices = vec![0u32; 3];
-                let query_vertex = index_clone.dataset.get_vertex(query_idx).unwrap();
-                let result = index_clone.search(&query_vertex, 3, 50, &mut indices);
-                (result.is_ok(), indices)
+        let handles: Vec<_> = (0..4)
+            .map(|i| {
+                let index_clone = Arc::clone(&index_arc);
+                let query_idx = (i % test_vectors.len()) as u32;
+
+                thread::spawn(move || {
+                    let mut indices = vec![0u32; 3];
+                    let query_vertex = index_clone.dataset.get_vertex(query_idx).unwrap();
+                    let result = index_clone.search(&query_vertex, 3, 50, &mut indices);
+                    (result.is_ok(), indices)
+                })
             })
-        }).collect();
-        
+            .collect();
+
         // Collect results
         for handle in handles {
             let (success, _indices) = handle.join().unwrap();
@@ -1492,12 +1543,12 @@ mod index_test {
     #[test]
     fn test_inmem_index_memory_performance_basic() {
         use std::time::Instant;
-        
+
         let index_write_parameters = IndexWriteParametersBuilder::new(L, R)
             .with_alpha(ALPHA)
             .with_num_threads(1)
             .build();
-        
+
         let config = IndexConfiguration::new(
             Metric::L2,
             128,
@@ -1510,43 +1561,49 @@ mod index_test {
             1.0f32,
             index_write_parameters,
         );
-        
+
         // Create test data
         let mut test_vectors = Vec::new();
-        for i in 0..50 {  // 50 vectors for basic performance test
+        for i in 0..50 {
+            // 50 vectors for basic performance test
             let mut vector = vec![0.0f32; 128];
             for j in 0..128 {
                 vector[j] = (i * 128 + j) as f32 / 1000.0;
             }
             test_vectors.push(vector);
         }
-        
+
         let vector_refs: Vec<&[f32]> = test_vectors.iter().map(|v| v.as_slice()).collect();
-        
+
         // Measure build time
         let mut index: InmemIndex<f32, DIM_128> = InmemIndex::new(config).unwrap();
-        
+
         let start = Instant::now();
         let result = index.build_from_memory(&vector_refs);
         let build_time = start.elapsed();
-        
+
         assert!(result.is_ok(), "Build should succeed");
-        
+
         // Measure search time
         let query_vertex = index.dataset.get_vertex(0).unwrap();
         let mut indices = vec![0u32; 5];
-        
+
         let start = Instant::now();
         let search_result = index.search(&query_vertex, 5, 50, &mut indices);
         let search_time = start.elapsed();
-        
+
         assert!(search_result.is_ok(), "Search should succeed");
-        
+
         // Basic performance sanity checks (not precise benchmarks)
-        assert!(build_time.as_millis() < 5000, "Build should complete in reasonable time");
+        assert!(
+            build_time.as_millis() < 5000,
+            "Build should complete in reasonable time"
+        );
         assert!(search_time.as_millis() < 100, "Search should be fast");
-        
-        println!("Memory interface build time: {:?}, search time: {:?}", 
-            build_time, search_time);
+
+        println!(
+            "Memory interface build time: {:?}, search time: {:?}",
+            build_time, search_time
+        );
     }
 }

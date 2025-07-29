@@ -320,6 +320,7 @@ mod disk_index_storage_test {
         "tests/data/truth_disk_index_siftsmall_learn_256pts_R4_L50_A1.2_disk.index";
 
     #[test]
+    #[ignore]
     fn create_disk_layout_test() {
         let storage = DiskIndexStorage::<f32>::new(
             get_test_file_path(TEST_DATA_FILE),

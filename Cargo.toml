@@ -18,3 +18,9 @@ resolver = "2"
 [profile.release]
 opt-level = 3
 codegen-units=1
+
+[workspace.dependencies]
+thiserror = "2.0.12"
+clap = "4.4"
+bitflags = { version = "2.9.1", package = "bitflags" }
+

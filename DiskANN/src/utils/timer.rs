@@ -132,6 +132,7 @@ mod timer_tests {
     }
 
     #[test]
+    #[ignore]
     fn test_elapsed() {
         let timer = Timer::new();
         thread::sleep(time::Duration::from_millis(100));

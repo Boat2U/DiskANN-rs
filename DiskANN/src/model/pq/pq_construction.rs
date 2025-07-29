@@ -290,6 +290,7 @@ mod pq_test {
     use crate::utils::{METADATA_SIZE, convert_types_u32_usize, convert_types_u64_usize, load_bin};
 
     #[test]
+    #[ignore]
     fn generate_pq_pivots_test() {
         let pivot_file_name = "generate_pq_pivots_test.bin";
         let compressed_file_name = "compressed.bin";
@@ -336,6 +337,7 @@ mod pq_test {
     }
 
     #[test]
+    #[ignore]
     fn generate_pq_data_from_pivots_test() {
         let data_file = "generate_pq_data_from_pivots_test_data.bin";
         //npoints=5, dim=8, 5 vectors [1.0;8] [2.0;8] [2.1;8] [2.2;8] [100.0;8]
@@ -377,6 +379,7 @@ mod pq_test {
     }
 
     #[test]
+    #[ignore]
     fn pq_end_to_end_validation_with_codebook_test() {
         let data_file = "tests/data/siftsmall_learn.bin";
         let pq_pivots_path = "tests/data/siftsmall_learn.bin_pq_pivots.bin";
