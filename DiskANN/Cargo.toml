@@ -40,3 +40,6 @@ name = "distance_bench"
 [[bench]]
 harness = false
 name = "neighbor_bench"
+
+[package.metadata.cargo-machete]
+ignored = ["bincode", "crossbeam", "half", "once_cell", "serde"]
