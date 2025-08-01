@@ -68,9 +68,9 @@ pub const PBSTR: &str = "|||||||||||||||||||||||||||||||||||||||||||||||||||||||
 pub const PBWIDTH: usize = 60;
 
 macro_rules! convert_types {
-    ($name:ident, $intput_type:ty, $output_type:ty) => {
+    ($name:ident, $input_type:ty, $output_type:ty) => {
         /// Write data into file
-        pub fn $name(srcmat: &[$intput_type], npts: usize, dim: usize) -> Vec<$output_type> {
+        pub fn $name(srcmat: &[$input_type], npts: usize, dim: usize) -> Vec<$output_type> {
             let mut destmat: Vec<$output_type> = Vec::new();
             for i in 0..npts {
                 for j in 0..dim {

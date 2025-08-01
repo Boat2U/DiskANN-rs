@@ -30,7 +30,7 @@ where
     ) -> ANNResult<u32> {
         let init_ids = self.get_init_ids()?;
         self.init_graph_for_point(query, init_ids, scratch)?;
-        // Scratch is created using largest L val from search_memory_index, so we artifically make
+        // Scratch is created using largest L val from search_memory_index, so we artificially make
         // it smaller here This allows us to use the same scratch for all L values without
         // having to rebuild the query scratch
         scratch.best_candidates.set_capacity(search_list_size);

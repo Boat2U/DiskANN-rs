@@ -286,7 +286,7 @@ mod tests {
         assert_eq!(consumer_results, (0..10).collect::<Vec<_>>());
     }
 
-    /// This is a single value test. It avoids the unlimited wait until the collectin got empty on
+    /// This is a single value test. It avoids the unlimited wait until the collection got empty on
     /// the previous test. It will make sure the signal mutex is matching the waiting mutex.  
     #[test]
     fn test_wait_for_push_notify() {

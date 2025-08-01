@@ -40,12 +40,12 @@ where
             if file_frozen_pts == 1 {
                 return Err(ANNError::log_index_config_error(
                     "num_frozen_pts".to_string(), 
-                    "ERROR: When loading index, detected dynamic index, but constructor asks for static index. Exitting.".to_string())
+                    "ERROR: When loading index, detected dynamic index, but constructor asks for static index. Exiting.".to_string())
                 );
             } else {
                 return Err(ANNError::log_index_config_error(
                     "num_frozen_pts".to_string(), 
-                    "ERROR: When loading index, detected static index, but constructor asks for dynamic index. Exitting.".to_string())
+                    "ERROR: When loading index, detected static index, but constructor asks for dynamic index. Exiting.".to_string())
                 );
             }
         }
@@ -127,8 +127,8 @@ where
         out.write_all(&self.start.to_le_bytes())?;
         out.write_all(&(self.configuration.num_frozen_pts as u64).to_le_bytes())?;
 
-        // At this point, either nd == max_points or any frozen points have
-        // been temporarily moved to nd, so nd + num_frozen_points is the valid
+        // At this point, either num_data == max_points or any frozen points have
+        // been temporarily moved to num_data, so num_data + num_frozen_points is the valid
         // location limit
         for i in 0..self.num_active_pts + self.configuration.num_frozen_pts {
             let idx = i as u32;
@@ -159,8 +159,8 @@ where
 
     /// Save the data on a file.
     pub fn save_data(&mut self, data_file: &str) -> ANNResult<usize> {
-        // Note: at this point, either _nd == _max_points or any frozen points have
-        // been temporarily moved to _nd, so _nd + _num_frozen_points is the valid
+        // Note: at this point, either _num_data == _max_points or any frozen points have
+        // been temporarily moved to _num_data, so _num_data + _num_frozen_points is the valid
         // location limit.
         Ok(save_data_in_base_dimensions(
             data_file,

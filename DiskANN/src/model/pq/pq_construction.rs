@@ -133,7 +133,7 @@ fn generate_pq_pivots(
 /// streams the base file (data_file), and computes the closest centers in each
 /// chunk to generate the compressed data_file and stores it in
 /// pq_compressed_vectors_path.
-/// If the numbber of centers is < 256, it stores as byte vector, else as
+/// If the number of centers is < 256, it stores as byte vector, else as
 /// 4-byte vector in binary format.
 /// Compressed PQ table layout: {num_points: usize}{num_chunks: usize}{compressed pq table:
 /// [num_points; num_chunks]}

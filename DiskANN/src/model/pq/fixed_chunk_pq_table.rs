@@ -30,7 +30,7 @@ pub struct FixedChunkPQTable {
     /// centroid of each dimension
     centroids: Vec<f32>,
 
-    /// Becasue we're using L2 distance, this is no needed now.
+    /// Because we're using L2 distance, this is no needed now.
     /// Transport of pq_table. transport_pq_table = float array of size [ndims * 256].
     /// e.g. if pa_table is 2 centroids * 3 dims
     /// [ 1, 2, 3,
