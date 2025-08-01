@@ -57,7 +57,7 @@ impl Default for Half {
 // Implement Clone for Half.
 impl Clone for Half {
     fn clone(&self) -> Self {
-        Half(self.0)
+        *self // Half(self.0)
     }
 }
 
@@ -71,7 +71,7 @@ impl fmt::Debug for Half {
 impl Copy for Half {}
 
 impl Half {
-    pub fn to_f32(&self) -> f32 {
+    pub fn to_f32(self) -> f32 {
         self.0.to_f32()
     }
 }
