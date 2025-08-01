@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! Adjacency List
@@ -54,8 +52,8 @@ impl DerefMut for AdjacencyList {
 }
 
 impl<'a> IntoIterator for &'a AdjacencyList {
-    type Item = &'a u32;
     type IntoIter = std::slice::Iter<'a, u32>;
+    type Item = &'a u32;
 
     fn into_iter(self) -> Self::IntoIter {
         self.edges.iter()

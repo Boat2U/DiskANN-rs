@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 pub mod inmem_index_initialization;
 
 /// test files should be placed under tests folder

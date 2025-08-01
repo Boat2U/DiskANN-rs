@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use std::fs::{File, OpenOptions};
 use std::io::{Seek, SeekFrom, Write};
 use std::path::Path;
@@ -117,7 +115,7 @@ mod cached_writer_test {
     #[test]
     fn cached_writer_works() {
         let file_name = "cached_writer_works_test.bin";
-        //npoints=2, dim=8, 2 vectors [1.0;8] [2.0;8]
+        // npoints=2, dim=8, 2 vectors [1.0;8] [2.0;8]
         let data: [u8; 72] = [
             2, 0, 1, 2, 8, 0, 1, 3, 0x00, 0x01, 0x80, 0x3f, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00,
             0x40, 0x40, 0x00, 0x00, 0x80, 0x40, 0x00, 0x00, 0xa0, 0x40, 0x00, 0x00, 0xc0, 0x40,

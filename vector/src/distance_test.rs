@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #[cfg(test)]
 mod e2e_test {
 
@@ -96,7 +94,8 @@ mod e2e_test {
     }
 
     fn get_test_data(i1: usize, i2: usize) -> (F32Slice104, F32Slice104) {
-        use base64::{engine::general_purpose, Engine as _};
+        use base64::Engine as _;
+        use base64::engine::general_purpose;
 
         let b64 = general_purpose::STANDARD.decode(TEST_DATA).unwrap();
 

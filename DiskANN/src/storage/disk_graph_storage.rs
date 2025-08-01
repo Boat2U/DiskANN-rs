@@ -1,17 +1,13 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_docs)]
 
 //! Disk graph storage
 
 use std::sync::{Arc, Mutex};
 
-use crate::{
-    common::ANNResult,
-    model::{AlignedRead, IOContext, LinuxAlignedFileReader},
-};
+use crate::common::ANNResult;
+use crate::model::{AlignedRead, IOContext, LinuxAlignedFileReader};
 
 /// Graph storage for disk index
 /// One thread has one storage instance

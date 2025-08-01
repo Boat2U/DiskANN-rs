@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_docs)]
 
 //! Disk graph
@@ -9,12 +7,11 @@
 use byteorder::{ByteOrder, LittleEndian};
 use vector::FullPrecisionDistance;
 
+use super::{AdjacencyList, SectorGraph, VertexAndNeighbors};
 use crate::common::{ANNError, ANNResult};
 use crate::model::Vertex;
 use crate::model::data_store::DiskScratchDataset;
 use crate::storage::DiskGraphStorage;
-
-use super::{AdjacencyList, SectorGraph, VertexAndNeighbors};
 
 /// Disk graph
 pub struct DiskGraph {

@@ -1,19 +1,16 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations)]
+
+use std::arch::x86_64::{_MM_HINT_T0, _mm_prefetch};
 
 use hashbrown::HashMap;
 use rayon::prelude::{
     IndexedParallelIterator, IntoParallelRefMutIterator, ParallelIterator, ParallelSliceMut,
 };
-use std::arch::x86_64::{_MM_HINT_T0, _mm_prefetch};
 
-use crate::{
-    common::{ANNError, ANNResult},
-    model::NUM_PQ_CENTROIDS,
-};
+use crate::common::{ANNError, ANNResult};
+use crate::model::NUM_PQ_CENTROIDS;
 
 /// PQ Pivot table loading and calculate distance
 #[derive(Debug)]
@@ -50,7 +47,8 @@ pub struct FixedChunkPQTable {
 }
 
 impl FixedChunkPQTable {
-    /// Create the FixedChunkPQTable with dim and chunk numbers and pivot file data (pivot table + cenroids + chunk offsets)
+    /// Create the FixedChunkPQTable with dim and chunk numbers and pivot file data (pivot table +
+    /// cenroids + chunk offsets)
     pub fn new(
         dim: usize,
         num_pq_chunks: usize,
@@ -89,7 +87,8 @@ impl FixedChunkPQTable {
 
     /// Pre-calculated the distance between query and each centroid by l2 distance
     /// * `query_vec` - query vector: 1 * dim
-    /// * `dist_vec` - pre-calculated the distance between query and each centroid: chunk_size * num_centroids
+    /// * `dist_vec` - pre-calculated the distance between query and each centroid: chunk_size *
+    ///   num_centroids
     #[allow(clippy::needless_range_loop)]
     pub fn populate_chunk_distances(&self, query_vec: &[f32]) -> Vec<f32> {
         let mut dist_vec = vec![0.0; self.num_pq_chunks * NUM_PQ_CENTROIDS];
@@ -109,11 +108,12 @@ impl FixedChunkPQTable {
 
     /// Pre-calculated the distance between query and each centroid by inner product
     /// * `query_vec` - query vector: 1 * dim
-    /// * `dist_vec` - pre-calculated the distance between query and each centroid: chunk_size * num_centroids
+    /// * `dist_vec` - pre-calculated the distance between query and each centroid: chunk_size *
+    ///   num_centroids
     ///
     /// Reason to allow clippy::needless_range_loop:
-    /// The inner loop is operating over a range that is different for each iteration of the outer loop.
-    /// This isn't a scenario where using iter().enumerate() would be easily applicable,
+    /// The inner loop is operating over a range that is different for each iteration of the outer
+    /// loop. This isn't a scenario where using iter().enumerate() would be easily applicable,
     /// because the inner loop isn't iterating directly over the contents of a slice or array.
     /// Thus, using indexing might be the most straightforward way to express this logic.
     #[allow(clippy::needless_range_loop)]
@@ -210,7 +210,8 @@ impl FixedChunkPQTable {
 /// * `pq_ids` - batch nodes: n_pts * pq_nchunks
 /// * `n_pts` - batch number
 /// * `pq_nchunks` - pq chunk number number
-/// * `pq_dists` - pre-calculated the distance between query and each centroid: chunk_size * num_centroids
+/// * `pq_dists` - pre-calculated the distance between query and each centroid: chunk_size *
+///   num_centroids
 /// * `dists_out` - n_pts * 1
 pub fn pq_dist_lookup(
     pq_ids: &[u8],

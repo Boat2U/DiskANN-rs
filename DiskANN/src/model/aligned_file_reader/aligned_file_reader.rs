@@ -1,9 +1,9 @@
-use crate::{
-    common::{ANNError, ANNResult},
-    model::IOContext,
-};
-use io_uring::{IoUring, opcode, types};
 use std::os::unix::io::AsRawFd;
+
+use io_uring::{IoUring, opcode, types};
+
+use crate::common::{ANNError, ANNResult};
+use crate::model::IOContext;
 
 pub const MAX_IO_CONCURRENCY: usize = 128;
 

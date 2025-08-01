@@ -1,20 +1,17 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! Aligned allocator
 
 extern crate cblas;
 
+use std::cmp::{Ordering, min};
+use std::collections::BinaryHeap;
+use std::sync::{Arc, Mutex};
+
 use cblas::{Layout, Transpose, sgemm, snrm2};
 use rayon::prelude::*;
-use std::{
-    cmp::{Ordering, min},
-    collections::BinaryHeap,
-    sync::{Arc, Mutex},
-};
 
 use crate::common::{ANNError, ANNResult};
 
@@ -339,8 +336,9 @@ pub fn process_residuals(
 
 #[cfg(test)]
 mod math_util_test {
-    use super::*;
     use approx::assert_abs_diff_eq;
+
+    use super::*;
 
     #[test]
     fn calc_distance_test() {

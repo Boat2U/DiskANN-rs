@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use crate::model::Neighbor;
 
 /// Neighbor priority Queue based on the distance to the query node
@@ -48,8 +46,9 @@ impl NeighborPriorityQueue {
     }
 
     /// Inserts item with order.
-    /// The item will be dropped if queue is full / already exist in queue / it has a greater distance than the last item.
-    /// The set cursor that is used to pop() the next item will be set to the lowest index of an uncheck item.
+    /// The item will be dropped if queue is full / already exist in queue / it has a greater
+    /// distance than the last item. The set cursor that is used to pop() the next item will be
+    /// set to the lowest index of an uncheck item.
     pub fn insert(&mut self, nbr: Neighbor) {
         if self.size == self.capacity && self.get_at(self.size - 1) < &nbr {
             return;

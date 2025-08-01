@@ -1,19 +1,17 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
-use byteorder::{LittleEndian, ReadBytesExt};
-use rand::distr::{Distribution, Uniform};
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::mem;
 
+use byteorder::{LittleEndian, ReadBytesExt};
+use rand::distr::{Distribution, Uniform};
+
 use crate::common::{ANNError, ANNResult};
-use crate::utils::CachedReader;
-use crate::utils::{METADATA_SIZE, file_exists, load_bin, open_file_to_write};
 use crate::utils::{
-    convert_types_u32_usize, convert_types_u64_usize, convert_types_usize_u8,
-    convert_types_usize_u32, convert_types_usize_u64, save_bin_f32, save_bin_u32, save_bin_u64,
+    CachedReader, METADATA_SIZE, convert_types_u32_usize, convert_types_u64_usize,
+    convert_types_usize_u8, convert_types_usize_u32, convert_types_usize_u64, file_exists,
+    load_bin, open_file_to_write, save_bin_f32, save_bin_u32, save_bin_u64,
 };
 
 #[derive(Debug)]
@@ -98,7 +96,8 @@ impl PQStorage {
         cumul_bytes[2] =
             cumul_bytes[1] + save_bin_f32(&self.pivot_file, centroid, dim, 1, cumul_bytes[1])?;
 
-        // Because the writer only can write u32, u64 but not usize, so we need to convert the type first.
+        // Because the writer only can write u32, u64 but not usize, so we need to convert the type
+        // first.
         let chunk_offsets_u64 = convert_types_usize_u32(chunk_offsets, chunk_offsets.len(), 1);
         cumul_bytes[3] = cumul_bytes[2]
             + save_bin_u32(
@@ -130,8 +129,10 @@ impl PQStorage {
         num_centers: &usize,
         dim: &usize,
     ) -> ANNResult<(Vec<f32>, Vec<f32>, Vec<usize>)> {
-        // Load file offset data. File saved as offset data(4*1) -> pivot data(centroid num*dim) -> centroid of dim data(dim*1) -> chunk offset data(chunksize+1*1)
-        // Because we only can write u64 rather than usize, so the file stored as u64 type. Need to convert to usize when use.
+        // Load file offset data. File saved as offset data(4*1) -> pivot data(centroid num*dim) ->
+        // centroid of dim data(dim*1) -> chunk offset data(chunksize+1*1) Because we only
+        // can write u64 rather than usize, so the file stored as u64 type. Need to convert to usize
+        // when use.
         let (data, offset_num, nc) = load_bin::<u64>(&self.pivot_file, 0)?;
         let file_offset_data = convert_types_u64_usize(&data, offset_num, nc);
         if offset_num != 4 {
@@ -349,7 +350,7 @@ mod pq_storage_tests {
     #[test]
     fn gen_random_slice_test() {
         let file_name = "gen_random_slice_test.bin";
-        //npoints=2, dim=8
+        // npoints=2, dim=8
         let data: [u8; 72] = [
             2, 0, 0, 0, 8, 0, 0, 0, 0x00, 0x00, 0x80, 0x3f, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00,
             0x40, 0x40, 0x00, 0x00, 0x80, 0x40, 0x00, 0x00, 0xa0, 0x40, 0x00, 0x00, 0xc0, 0x40,

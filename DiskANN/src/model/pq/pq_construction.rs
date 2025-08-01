@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations)]
 
 use rayon::prelude::{IndexedParallelIterator, ParallelIterator};
@@ -27,7 +25,8 @@ const NUM_KMEANS_REPS_PQ: usize = 12;
 /// num_pq_chunks (if it divides dimension, else rounded) chunks, and runs
 /// k-means in each chunk to compute the PQ pivots and stores in bin format in
 /// file pq_pivots_path as a s num_centers*dim floating point binary file
-/// PQ pivot table layout: {pivot offsets data: METADATA_SIZE}{pivot vector:[dim; num_centroid]}{centroid vector:[dim; 1]}{chunk offsets:[chunk_num+1; 1]}
+/// PQ pivot table layout: {pivot offsets data: METADATA_SIZE}{pivot vector:[dim;
+/// num_centroid]}{centroid vector:[dim; 1]}{chunk offsets:[chunk_num+1; 1]}
 fn generate_pq_pivots(
     train_data: &mut [f32],
     num_train: usize,
@@ -136,7 +135,8 @@ fn generate_pq_pivots(
 /// pq_compressed_vectors_path.
 /// If the numbber of centers is < 256, it stores as byte vector, else as
 /// 4-byte vector in binary format.
-/// Compressed PQ table layout: {num_points: usize}{num_chunks: usize}{compressed pq table: [num_points; num_chunks]}
+/// Compressed PQ table layout: {num_points: usize}{num_chunks: usize}{compressed pq table:
+/// [num_points; num_chunks]}
 fn generate_pq_data_from_pivots<T: Copy + Into<f32>>(
     num_centers: usize,
     num_pq_chunks: usize,
@@ -340,7 +340,7 @@ mod pq_test {
     #[ignore]
     fn generate_pq_data_from_pivots_test() {
         let data_file = "generate_pq_data_from_pivots_test_data.bin";
-        //npoints=5, dim=8, 5 vectors [1.0;8] [2.0;8] [2.1;8] [2.2;8] [100.0;8]
+        // npoints=5, dim=8, 5 vectors [1.0;8] [2.0;8] [2.1;8] [2.2;8] [100.0;8]
         let mut train_data: Vec<f32> = vec![
             1.0f32, 1.0f32, 1.0f32, 1.0f32, 1.0f32, 1.0f32, 1.0f32, 1.0f32, 2.0f32, 2.0f32, 2.0f32,
             2.0f32, 2.0f32, 2.0f32, 2.0f32, 2.0f32, 2.1f32, 2.1f32, 2.1f32, 2.1f32, 2.1f32, 2.1f32,

@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Seek, SeekFrom, Write};
 use std::path::Path;
@@ -9,12 +7,11 @@ use std::path::Path;
 use byteorder::{LittleEndian, ReadBytesExt};
 use vector::FullPrecisionDistance;
 
+use super::InmemIndex;
 use crate::common::{ANNError, ANNResult};
 use crate::model::InMemoryGraph;
 use crate::model::graph::AdjacencyList;
 use crate::utils::{file_exists, save_data_in_base_dimensions};
-
-use super::InmemIndex;
 
 impl<T, const N: usize> InmemIndex<T, N>
 where
@@ -239,14 +236,11 @@ mod index_test {
     use vector::Metric;
 
     use super::*;
-    use crate::{
-        index::ANNInmemIndex,
-        model::{
-            IndexConfiguration, configuration::index_write_parameters::IndexWriteParametersBuilder,
-            vertex::DIM_128,
-        },
-        utils::{load_metadata_from_file, round_up},
-    };
+    use crate::index::ANNInmemIndex;
+    use crate::model::IndexConfiguration;
+    use crate::model::configuration::index_write_parameters::IndexWriteParametersBuilder;
+    use crate::model::vertex::DIM_128;
+    use crate::utils::{load_metadata_from_file, round_up};
 
     const TEST_DATA_FILE: &str = "tests/data/siftsmall_learn_256pts.fbin";
     const R: u32 = 4;

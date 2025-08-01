@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! Index write parameters.
@@ -143,12 +141,10 @@ impl IndexWriteParametersBuilder {
         self
     }
 
-    /*
-    pub fn with_filter_list_size(mut self, filter_list_size: u32) -> Self {
-        self.filter_list_size = Some(filter_list_size);
-        self
-    }
-    */
+    // pub fn with_filter_list_size(mut self, filter_list_size: u32) -> Self {
+    // self.filter_list_size = Some(filter_list_size);
+    // self
+    // }
 
     /// Set number of frozen points.
     pub fn with_num_frozen_points(mut self, num_frozen_points: u32) -> Self {
@@ -170,7 +166,8 @@ impl IndexWriteParametersBuilder {
             alpha: self.alpha.unwrap_or(default_param_vals::ALPHA),
             num_rounds: self.num_rounds.unwrap_or(default_param_vals::NUM_ROUNDS),
             num_threads: self.num_threads.unwrap_or(default_param_vals::NUM_THREADS),
-            // filter_list_size: self.filter_list_size.unwrap_or(default_param_vals::FILTER_LIST_SIZE),
+            // filter_list_size:
+            // self.filter_list_size.unwrap_or(default_param_vals::FILTER_LIST_SIZE),
             num_frozen_points: self
                 .num_frozen_points
                 .unwrap_or(default_param_vals::NUM_FROZEN_POINTS),

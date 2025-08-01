@@ -1,20 +1,16 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_docs)]
 
 //! ANN disk index abstraction
 
 use vector::FullPrecisionDistance;
 
+use super::DiskIndex;
+use crate::common::{ANNError, ANNResult};
 use crate::model::vertex::{DIM_104, DIM_128, DIM_256};
 use crate::model::{DiskIndexBuildParameters, IndexConfiguration};
 use crate::storage::DiskIndexStorage;
-
-use crate::common::{ANNError, ANNResult};
-
-use super::DiskIndex;
 
 /// ANN disk index abstraction for custom <T, N>
 pub trait ANNDiskIndex<T>: Sync + Send

@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! Parameters for disk index construction.
@@ -18,9 +16,9 @@ const THRESHOLD_FOR_CACHING_IN_GB: f64 = 1.0;
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct DiskIndexBuildParameters {
     /// Bound on the memory footprint of the index at search time in bytes.
-    /// Once built, the index will use up only the specified RAM limit, the rest will reside on disk.
-    /// This will dictate how aggressively we compress the data vectors to store in memory.
-    /// Larger will yield better performance at search time.
+    /// Once built, the index will use up only the specified RAM limit, the rest will reside on
+    /// disk. This will dictate how aggressively we compress the data vectors to store in
+    /// memory. Larger will yield better performance at search time.
     search_ram_limit: f64,
 
     /// Limit on the memory allowed for building the index in bytes.

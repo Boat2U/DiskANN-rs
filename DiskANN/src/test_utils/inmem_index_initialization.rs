@@ -1,16 +1,13 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use vector::Metric;
 
+use super::get_test_file_path;
 use crate::index::InmemIndex;
 use crate::model::IndexConfiguration;
 use crate::model::configuration::index_write_parameters::IndexWriteParametersBuilder;
 use crate::model::vertex::DIM_128;
 use crate::utils::{file_exists, load_metadata_from_file};
-
-use super::get_test_file_path;
 
 // f32, 128 DIM and 256 points source data
 const TEST_DATA_FILE: &str = "tests/data/siftsmall_learn_256pts.fbin";

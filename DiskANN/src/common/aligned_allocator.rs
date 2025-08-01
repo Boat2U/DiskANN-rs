@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! Aligned allocator
@@ -95,7 +93,8 @@ impl<T> AlignedBoxWithSlice<T> {
     }
 
     /// Split the range of memory into nonoverlapping mutable slices.
-    /// The number of returned slices is (range length / slice_len) and each has a length of slice_len.
+    /// The number of returned slices is (range length / slice_len) and each has a length of
+    /// slice_len.
     pub fn split_into_nonoverlapping_mut_slices(
         &mut self,
         range: Range<usize>,
@@ -157,9 +156,8 @@ impl<T> DerefMut for AlignedBoxWithSlice<T> {
 mod tests {
     use rand::Rng;
 
-    use crate::utils::is_aligned;
-
     use super::*;
+    use crate::utils::is_aligned;
 
     #[test]
     fn create_alignedvec_works_32() {

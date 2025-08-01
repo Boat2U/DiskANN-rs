@@ -1,12 +1,10 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
-use crate::common::ANNResult;
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+use std::time::Duration;
 
 use super::ArcConcurrentBoxedQueue;
 use super::scratch_traits::Scratch;
-use std::time::Duration;
+use crate::common::ANNResult;
 
 pub struct ScratchStoreManager<T: Scratch> {
     scratch: Option<Box<T>>,

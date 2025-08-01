@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use std::time::{Duration, Instant};
 
 #[cfg(target_os = "linux")]
@@ -100,8 +98,9 @@ impl Timer {
 
 #[cfg(test)]
 mod timer_tests {
-    use super::*;
     use std::{thread, time};
+
+    use super::*;
 
     #[test]
     fn test_new() {

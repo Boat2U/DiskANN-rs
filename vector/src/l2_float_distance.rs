@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! Distance calculation for L2 Metric
@@ -37,11 +35,11 @@ pub fn distance_l2_vector_f16<const N: usize>(a: &[Half; N], b: &[Half; N]) -> f
         }
 
         let x128: __m128 = _mm_add_ps(_mm256_extractf128_ps(sum, 1), _mm256_castps256_ps128(sum));
-        /* ( -, -, x1+x3+x5+x7, x0+x2+x4+x6 ) */
+        // ( -, -, x1+x3+x5+x7, x0+x2+x4+x6 )
         let x64: __m128 = _mm_add_ps(x128, _mm_movehl_ps(x128, x128));
-        /* ( -, -, -, x0+x1+x2+x3+x4+x5+x6+x7 ) */
+        // ( -, -, -, x0+x1+x2+x3+x4+x5+x6+x7 )
         let x32: __m128 = _mm_add_ss(x64, _mm_shuffle_ps(x64, x64, 0x55));
-        /* Conversion to float is a no-op on x86-64 */
+        // Conversion to float is a no-op on x86-64
         _mm_cvtss_f32(x32)
     }
 }
@@ -67,11 +65,11 @@ pub fn distance_l2_vector_f32<const N: usize>(a: &[f32; N], b: &[f32; N]) -> f32
         }
 
         let x128: __m128 = _mm_add_ps(_mm256_extractf128_ps(sum, 1), _mm256_castps256_ps128(sum));
-        /* ( -, -, x1+x3+x5+x7, x0+x2+x4+x6 ) */
+        // ( -, -, x1+x3+x5+x7, x0+x2+x4+x6 )
         let x64: __m128 = _mm_add_ps(x128, _mm_movehl_ps(x128, x128));
-        /* ( -, -, -, x0+x1+x2+x3+x4+x5+x6+x7 ) */
+        // ( -, -, -, x0+x1+x2+x3+x4+x5+x6+x7 )
         let x32: __m128 = _mm_add_ss(x64, _mm_shuffle_ps(x64, x64, 0x55));
-        /* Conversion to float is a no-op on x86-64 */
+        // Conversion to float is a no-op on x86-64
         _mm_cvtss_f32(x32)
     }
 }

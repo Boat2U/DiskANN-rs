@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use std::alloc::LayoutError;
 use std::array::TryFromSliceError;
 use std::num::TryFromIntError;
@@ -47,11 +45,13 @@ pub enum ANNError {
     #[error("LockPoisonError: {err}")]
     LockPoisonError { err: String },
 
-    /// DiskIOAlignmentError which can be returned when calling windows API CreateFileA for the disk index file fails.
+    /// DiskIOAlignmentError which can be returned when calling windows API CreateFileA for the disk
+    /// index file fails.
     #[error("DiskIOAlignmentError: {err}")]
     DiskIOAlignmentError { err: String },
 
-    /// IOQueueError which can be returned when we call windows API CreateIoQueue for the disk index file fails.
+    /// IOQueueError which can be returned when we call windows API CreateIoQueue for the disk index
+    /// file fails.
     #[error("IOQueueError: {err}")]
     IOQueueError { err: String },
 

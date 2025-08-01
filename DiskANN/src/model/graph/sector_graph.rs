@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_docs)]
 
 //! Sector graph
@@ -16,8 +14,8 @@ use crate::storage::DiskGraphStorage;
 pub struct SectorGraph {
     /// Sector bytes from disk
     /// One sector has num_nodes_per_sector nodes
-    /// Each node's layout: {full precision vector:[T; DIM]}{num_nbrs: u32}{neighbors: [u32; num_nbrs]}
-    /// The fp vector is not aligned
+    /// Each node's layout: {full precision vector:[T; DIM]}{num_nbrs: u32}{neighbors: [u32;
+    /// num_nbrs]} The fp vector is not aligned
     sectors_data: AlignedBoxWithSlice<u8>,
 
     /// Graph storage to read sectors

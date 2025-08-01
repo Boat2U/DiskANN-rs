@@ -1,15 +1,14 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
-use rand::distr::{Distribution, Uniform};
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
+use std::fs::File;
 use std::io::{Seek, SeekFrom, Write};
 use std::mem;
-use std::{fs::File, path::Path};
+use std::path::Path;
 
-use crate::common::{ANNError, ANNResult};
+use rand::distr::{Distribution, Uniform};
 
 use super::CachedReader;
+use crate::common::{ANNError, ANNResult};
 
 /// streams data from the file, and samples each vector with probability p_val
 /// and returns a matrix of size slice_size* ndims as floating point type.
@@ -100,17 +99,18 @@ pub fn gen_sample_data<T>(data_file: &str, output_file: &str, sampling_rate: f64
 
 #[cfg(test)]
 mod partition_test {
-    use byteorder::{LittleEndian, ReadBytesExt};
-    use std::{fs, io::Read};
+    use std::fs;
+    use std::io::Read;
 
-    use crate::utils::file_exists;
+    use byteorder::{LittleEndian, ReadBytesExt};
 
     use super::*;
+    use crate::utils::file_exists;
 
     #[test]
     fn gen_sample_data_test() {
         let file_name = "gen_sample_data_test.bin";
-        //npoints=2, dim=8
+        // npoints=2, dim=8
         let data: [u8; 72] = [
             2, 0, 0, 0, 8, 0, 0, 0, 0x00, 0x00, 0x80, 0x3f, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00,
             0x40, 0x40, 0x00, 0x00, 0x80, 0x40, 0x00, 0x00, 0xa0, 0x40, 0x00, 0x00, 0xc0, 0x40,

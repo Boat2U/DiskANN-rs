@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use criterion::{Criterion, criterion_group, criterion_main};
 use diskann::utils::k_means_clustering;
 use rand::Rng;

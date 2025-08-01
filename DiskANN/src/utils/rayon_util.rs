@@ -1,9 +1,8 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
-use rayon::prelude::{IntoParallelIterator, ParallelIterator};
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use std::ops::Range;
+
+use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 
 use crate::common::ANNResult;
 

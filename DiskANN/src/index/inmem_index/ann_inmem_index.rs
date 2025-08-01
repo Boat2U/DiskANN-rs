@@ -1,20 +1,15 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_docs)]
 
 //! ANN in-memory index abstraction
 
 use vector::FullPrecisionDistance;
 
-use crate::common::{ANNError, ANNResult};
-use crate::model::{
-    IndexConfiguration,
-    vertex::{DIM_104, DIM_128, DIM_256},
-};
-
 use super::InmemIndex;
+use crate::common::{ANNError, ANNResult};
+use crate::model::IndexConfiguration;
+use crate::model::vertex::{DIM_104, DIM_128, DIM_256};
 
 /// ANN inmem-index abstraction for custom <T, N>
 pub trait ANNInmemIndex<T>: Sync + Send
@@ -33,7 +28,8 @@ where
     /// Insert index from file
     fn insert(&mut self, filename: &str, num_points_to_insert: usize) -> ANNResult<()>;
 
-    /// Search the index for K nearest neighbors of query using given L value, for benchmarking purposes
+    /// Search the index for K nearest neighbors of query using given L value, for benchmarking
+    /// purposes
     fn search(
         &self,
         query: &[T],
@@ -101,9 +97,8 @@ where
 mod dataset_test {
     use vector::Metric;
 
-    use crate::model::configuration::index_write_parameters::IndexWriteParametersBuilder;
-
     use super::*;
+    use crate::model::configuration::index_write_parameters::IndexWriteParametersBuilder;
 
     #[test]
     #[should_panic(expected = "ERROR: Data file fake_file does not exist.")]

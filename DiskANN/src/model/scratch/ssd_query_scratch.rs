@@ -1,20 +1,15 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![allow(dead_code)] // Todo: Remove this when the disk index query code is complete.
 use std::mem;
 use std::vec::Vec;
 
 use hashbrown::HashSet;
 
-use crate::{
-    common::{ANNResult, AlignedBoxWithSlice},
-    model::data_store::DiskScratchDataset,
-    model::{Neighbor, NeighborPriorityQueue},
-};
-
 use super::{MAX_GRAPH_DEGREE, PQScratch, QUERY_ALIGNMENT_OF_T_SIZE, Scratch};
+use crate::common::{ANNResult, AlignedBoxWithSlice};
+use crate::model::data_store::DiskScratchDataset;
+use crate::model::{Neighbor, NeighborPriorityQueue};
 
 // Scratch space for disk index based search.
 pub struct SSDQueryScratch<T: Default + Copy, const N: usize> {

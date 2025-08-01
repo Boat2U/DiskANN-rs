@@ -1,14 +1,13 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! Aligned allocator
 
+use std::cmp::min;
+
 use rand::distr::{Distribution, Uniform};
 use rayon::prelude::*;
-use std::cmp::min;
 
 use crate::common::ANNResult;
 use crate::utils::math_util::{calc_distance, compute_closest_centers, compute_vecs_l2sq};
@@ -280,9 +279,10 @@ pub fn k_means_clustering(
 
 #[cfg(test)]
 mod kmeans_test {
-    use super::*;
     use approx::assert_relative_eq;
     use rand::Rng;
+
+    use super::*;
 
     #[test]
     fn lloyds_iter_test() {

@@ -1,16 +1,16 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! Search algorithm for index construction and query
 
-use crate::common::{ANNError, ANNResult};
-use crate::index::InmemIndex;
-use crate::model::{Neighbor, Vertex, scratch::InMemQueryScratch};
 use hashbrown::hash_set::Entry::*;
 use vector::FullPrecisionDistance;
+
+use crate::common::{ANNError, ANNResult};
+use crate::index::InmemIndex;
+use crate::model::scratch::InMemQueryScratch;
+use crate::model::{Neighbor, Vertex};
 
 impl<T, const N: usize> InmemIndex<T, N>
 where
@@ -30,8 +30,9 @@ where
     ) -> ANNResult<u32> {
         let init_ids = self.get_init_ids()?;
         self.init_graph_for_point(query, init_ids, scratch)?;
-        // Scratch is created using largest L val from search_memory_index, so we artifically make it smaller here
-        // This allows us to use the same scratch for all L values without having to rebuild the query scratch
+        // Scratch is created using largest L val from search_memory_index, so we artifically make
+        // it smaller here This allows us to use the same scratch for all L values without
+        // having to rebuild the query scratch
         scratch.best_candidates.set_capacity(search_list_size);
         let (_, cmp) = self.greedy_search(query, scratch)?;
 
@@ -56,7 +57,8 @@ where
         Ok(visited_nodes)
     }
 
-    /// Returns the locations of start point and frozen points suitable for use with iterate_to_fixed_point.
+    /// Returns the locations of start point and frozen points suitable for use with
+    /// iterate_to_fixed_point.
     fn get_init_ids(&self) -> ANNResult<Vec<u32>> {
         let mut init_ids = Vec::with_capacity(1 + self.configuration.num_frozen_pts);
         init_ids.push(self.start);
@@ -213,12 +215,11 @@ where
 mod search_test {
     use vector::Metric;
 
+    use super::*;
     use crate::model::IndexConfiguration;
     use crate::model::configuration::index_write_parameters::IndexWriteParametersBuilder;
     use crate::model::graph::AdjacencyList;
     use crate::test_utils::inmem_index_initialization::create_index_with_test_data;
-
-    use super::*;
 
     #[test]
     fn get_init_ids_no_forzen_pts() {

@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! Scratch space for in-memory index based search
@@ -11,11 +9,10 @@ use std::mem;
 
 use hashbrown::HashSet;
 
+use super::Scratch;
 use crate::common::{ANNError, ANNResult, AlignedBoxWithSlice};
 use crate::model::configuration::index_write_parameters::IndexWriteParameters;
 use crate::model::{Neighbor, NeighborPriorityQueue, PQScratch};
-
-use super::Scratch;
 
 /// In-mem index related limits
 pub const GRAPH_SLACK_FACTOR: f64 = 1.3_f64;
@@ -35,7 +32,8 @@ pub const SECTOR_LEN: usize = 4096;
 /// TODO: SSD Index related limits
 pub const MAX_N_SECTOR_READS: usize = 128;
 
-/// The alignment required for memory access. This will be multiplied with size of T to get the actual alignment
+/// The alignment required for memory access. This will be multiplied with size of T to get the
+/// actual alignment
 pub const QUERY_ALIGNMENT_OF_T_SIZE: usize = 16;
 
 /// Scratch space for in-memory index based search
@@ -65,7 +63,8 @@ pub struct InMemQueryScratch<T, const N: usize> {
     /// The distance between visited neighbor and query node
     pub dist_scratch: Vec<f32>,
 
-    /// The PQ Scratch, keey it private since this class use the Box to own the memory. Use the function pq_scratch to get its reference
+    /// The PQ Scratch, keey it private since this class use the Box to own the memory. Use the
+    /// function pq_scratch to get its reference
     pub pq_scratch: Option<Box<PQScratch>>,
 
     /// Buffers used in process delete, capacity increases as needed
@@ -166,9 +165,8 @@ impl<T: Default + Copy, const N: usize> Scratch for InMemQueryScratch<T, N> {
 
 #[cfg(test)]
 mod inmemory_query_scratch_test {
-    use crate::model::configuration::index_write_parameters::IndexWriteParametersBuilder;
-
     use super::*;
+    use crate::model::configuration::index_write_parameters::IndexWriteParametersBuilder;
 
     #[test]
     fn node_visited_robinset_test() {

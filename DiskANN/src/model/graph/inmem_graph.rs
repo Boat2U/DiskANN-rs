@@ -1,16 +1,13 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! In-memory graph
 
 use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-use crate::common::ANNError;
-
 use super::VertexAndNeighbors;
+use crate::common::ANNError;
 
 /// The entire graph of in-memory index
 #[derive(Debug)]
@@ -77,9 +74,9 @@ impl InMemoryGraph {
 
 #[cfg(test)]
 mod graph_tests {
-    use crate::model::{GRAPH_SLACK_FACTOR, graph::AdjacencyList};
-
     use super::*;
+    use crate::model::GRAPH_SLACK_FACTOR;
+    use crate::model::graph::AdjacencyList;
 
     #[test]
     fn test_new() {

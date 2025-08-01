@@ -1,13 +1,12 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! In-memory Dataset
 
-use rayon::prelude::*;
 use std::mem;
+
+use rayon::prelude::*;
 use vector::{FullPrecisionDistance, Metric};
 
 use crate::common::{ANNError, ANNResult, AlignedBoxWithSlice};
@@ -373,7 +372,7 @@ mod dataset_test {
     #[test]
     fn load_data_test() {
         let file_name = "dataset_test_load_data_test.bin";
-        //npoints=2, dim=8, 2 vectors [1.0;8] [2.0;8]
+        // npoints=2, dim=8, 2 vectors [1.0;8] [2.0;8]
         let data: [u8; 72] = [
             2, 0, 0, 0, 8, 0, 0, 0, 0x00, 0x00, 0x80, 0x3f, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00,
             0x40, 0x40, 0x00, 0x00, 0x80, 0x40, 0x00, 0x00, 0xa0, 0x40, 0x00, 0x00, 0xc0, 0x40,

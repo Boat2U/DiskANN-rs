@@ -1,17 +1,13 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 pub mod neighbor;
-pub use neighbor::Neighbor;
-pub use neighbor::NeighborPriorityQueue;
+pub use neighbor::{Neighbor, NeighborPriorityQueue};
 
 pub mod data_store;
 pub use data_store::InmemDataset;
 
 pub mod graph;
-pub use graph::InMemoryGraph;
-pub use graph::VertexAndNeighbors;
+pub use graph::{InMemoryGraph, VertexAndNeighbors};
 
 pub mod configuration;
 pub use configuration::*;

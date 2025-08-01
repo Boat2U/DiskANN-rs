@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use hashbrown::HashSet;
 use vector::{FullPrecisionDistance, Metric};
 
@@ -100,7 +98,8 @@ where
         Ok(())
     }
 
-    /// Prunes the neighbors of a given data point based on some criteria and returns a list of pruned ids.
+    /// Prunes the neighbors of a given data point based on some criteria and returns a list of
+    /// pruned ids.
     ///
     /// # Arguments
     ///
@@ -130,7 +129,8 @@ where
         )
     }
 
-    /// Prunes the neighbors of a given data point based on some criteria and returns a list of pruned ids.
+    /// Prunes the neighbors of a given data point based on some criteria and returns a list of
+    /// pruned ids.
     ///
     /// # Arguments
     ///
@@ -207,7 +207,8 @@ where
     /// * `n` - The index of the new point
     /// * `pruned_list` is a vector of the neighbors of n that have been pruned by a previous step
     /// * `range` is the target number of neighbors for each point
-    /// * `scratch` is a mutable reference to a scratch space that can be reused for intermediate computations
+    /// * `scratch` is a mutable reference to a scratch space that can be reused for intermediate
+    ///   computations
     pub fn inter_insert(
         &self,
         n: u32,
@@ -238,7 +239,8 @@ where
             let neighbors = self.add_to_neighbors(vertex_id, n, range)?;
 
             if let Some(copy_of_neighbors) = neighbors {
-                // Pruning is needed, create a dummy set and a dummy vector to store the unique neighbors of vertex_id
+                // Pruning is needed, create a dummy set and a dummy vector to store the unique
+                // neighbors of vertex_id
                 let mut dummy_pool = self.get_unique_neighbors(&copy_of_neighbors, vertex_id)?;
 
                 // Create a new vector to store the pruned neighbors of vertex_id
@@ -264,7 +266,8 @@ where
     ///
     /// # Return
     ///
-    /// Returns `None` if the node is already in the list of neighbors, or a `Vec` containing the updated list of neighbors if the list of neighbors is full.
+    /// Returns `None` if the node is already in the list of neighbors, or a `Vec` containing the
+    /// updated list of neighbors if the list of neighbors is full.
     fn add_to_neighbors(
         &self,
         vertex_id: u32,

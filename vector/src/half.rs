@@ -1,16 +1,15 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
-use bytemuck::{Pod, Zeroable};
-use half::f16;
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use std::convert::AsRef;
 use std::fmt;
 
+use bytemuck::{Pod, Zeroable};
+use half::f16;
+
 // Define the Half type as a new type over f16.
-// the memory layout of the Half struct will be the same as the memory layout of the f16 type itself.
-// The Half struct serves as a simple wrapper around the f16 type and does not introduce any additional memory overhead.
-// Test function:
+// the memory layout of the Half struct will be the same as the memory layout of the f16 type
+// itself. The Half struct serves as a simple wrapper around the f16 type and does not introduce any
+// additional memory overhead. Test function:
 // use half::f16;
 // pub struct Half(f16);
 // fn main() {

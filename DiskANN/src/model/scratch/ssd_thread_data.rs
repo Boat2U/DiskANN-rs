@@ -1,14 +1,14 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![allow(dead_code)] // Todo: Remove this when the disk index query code is complete.
 use std::sync::Arc;
 
-use super::{IOContext, SSDQueryScratch, scratch_traits::Scratch};
+use super::scratch_traits::Scratch;
+use super::{IOContext, SSDQueryScratch};
 use crate::common::ANNResult;
 
-// The thread data struct for SSD I/O. One for each thread, contains the ScratchSpace and the IOContext.
+// The thread data struct for SSD I/O. One for each thread, contains the ScratchSpace and the
+// IOContext.
 pub struct SSDThreadData<T: Default + Copy, const N: usize> {
     pub scratch: SSDQueryScratch<T, N>,
     pub io_context: Option<Arc<IOContext>>,
@@ -34,9 +34,8 @@ impl<T: Default + Copy, const N: usize> SSDThreadData<T, N> {
 
 #[cfg(test)]
 mod tests {
-    use crate::model::Neighbor;
-
     use super::*;
+    use crate::model::Neighbor;
 
     #[test]
     fn test_new() {

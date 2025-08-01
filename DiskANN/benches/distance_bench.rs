@@ -1,9 +1,6 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use criterion::{Criterion, black_box, criterion_group, criterion_main};
-
 use rand::{Rng, rng};
 use vector::{FullPrecisionDistance, Metric};
 

@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use std::cmp;
 use std::sync::RwLock;
 use std::time::Duration;
@@ -17,7 +15,6 @@ use crate::model::{
     ArcConcurrentBoxedQueue, InMemQueryScratch, InMemoryGraph, IndexConfiguration, InmemDataset,
     Neighbor, ScratchStoreManager, Vertex,
 };
-
 use crate::utils::file_util::{file_exists, load_metadata_from_file};
 use crate::utils::rayon_util::execute_with_rayon;
 use crate::utils::{Timer, set_rayon_num_threads};
@@ -655,7 +652,8 @@ where
         }
 
         if self.configuration.index_write_parameter.num_threads > 0 {
-            // set the thread count of Rayon, otherwise it will use threads as many as logical cores.
+            // set the thread count of Rayon, otherwise it will use threads as many as logical
+            // cores.
             unsafe {
                 std::env::set_var(
                     "RAYON_NUM_THREADS",
@@ -864,7 +862,8 @@ where
         }
 
         if self.configuration.index_write_parameter.num_threads > 0 {
-            // set the thread count of Rayon, otherwise it will use threads as many as logical cores.
+            // set the thread count of Rayon, otherwise it will use threads as many as logical
+            // cores.
             unsafe {
                 std::env::set_var(
                     "RAYON_NUM_THREADS",
@@ -927,14 +926,11 @@ mod index_test {
     use vector::Metric;
 
     use super::*;
-    use crate::{
-        model::{
-            configuration::index_write_parameters::IndexWriteParametersBuilder, vertex::DIM_128,
-        },
-        test_utils::get_test_file_path,
-        utils::file_util::load_ids_to_delete_from_file,
-        utils::round_up,
-    };
+    use crate::model::configuration::index_write_parameters::IndexWriteParametersBuilder;
+    use crate::model::vertex::DIM_128;
+    use crate::test_utils::get_test_file_path;
+    use crate::utils::file_util::load_ids_to_delete_from_file;
+    use crate::utils::round_up;
 
     const TEST_DATA_FILE: &str = "tests/data/siftsmall_learn_256pts.fbin";
     const TRUTH_GRAPH: &str = "tests/data/truth_index_siftsmall_learn_256pts_R4_L50_A1.2";
@@ -1039,8 +1035,9 @@ mod index_test {
     const INSERT_TRUTH_GRAPH_WITH_SATURATED: &str =
         "tests/data/truth_index_siftsmall_learn_256pts_1+2_saturated_R4_L50_A1.2";
 
-    /// Build the index with TEST_DATA_FILE, insert TEST_DATA_FILE_2 and compare the index graph with truth graph TRUTH_GRAPH
-    /// Change above constants if you want to test with different dataset
+    /// Build the index with TEST_DATA_FILE, insert TEST_DATA_FILE_2 and compare the index graph
+    /// with truth graph TRUTH_GRAPH Change above constants if you want to test with different
+    /// dataset
     macro_rules! index_insert_end_to_end_test_singlethread {
         ($saturate_graph:expr, $truth_graph:expr) => {{
             let (data_num, dim) =
@@ -1093,7 +1090,8 @@ mod index_test {
         }};
     }
 
-    /// Build the index with TEST_DATA_FILE, and delete the vertices with id defined in TEST_DELETE_SET
+    /// Build the index with TEST_DATA_FILE, and delete the vertices with id defined in
+    /// TEST_DELETE_SET
     macro_rules! index_delete_end_to_end_test_singlethread {
         () => {{
             let (data_num, dim) =

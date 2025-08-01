@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! Disk scratch dataset
@@ -30,7 +28,8 @@ impl<T, const N: usize> DiskScratchDataset<T, N> {
     /// Create DiskScratchDataset instance
     pub fn new() -> ANNResult<Self> {
         Ok(Self {
-            // C++ code allocates round_up(MAX_N_CMPS * N, 256) bytes, shouldn't it be round_up(MAX_N_CMPS * N, 256) * size_of::<T> bytes?
+            // C++ code allocates round_up(MAX_N_CMPS * N, 256) bytes, shouldn't it be
+            // round_up(MAX_N_CMPS * N, 256) * size_of::<T> bytes?
             data: AlignedBoxWithSlice::new(
                 round_up(MAX_N_CMPS * N, DISK_SCRATCH_DATASET_ALIGN),
                 DISK_SCRATCH_DATASET_ALIGN,

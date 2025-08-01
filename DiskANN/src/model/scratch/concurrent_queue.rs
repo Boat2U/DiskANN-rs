@@ -1,7 +1,5 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! Aligned allocator
@@ -165,10 +163,11 @@ impl<T> Deref for ArcConcurrentBoxedQueue<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::model::ConcurrentQueue;
     use std::sync::Arc;
     use std::thread;
     use std::time::Duration;
+
+    use crate::model::ConcurrentQueue;
 
     #[test]
     fn test_push_pop() {
@@ -287,8 +286,8 @@ mod tests {
         assert_eq!(consumer_results, (0..10).collect::<Vec<_>>());
     }
 
-    /// This is a single value test. It avoids the unlimited wait until the collectin got empty on the previous test.
-    /// It will make sure the signal mutex is matching the waiting mutex.  
+    /// This is a single value test. It avoids the unlimited wait until the collectin got empty on
+    /// the previous test. It will make sure the signal mutex is matching the waiting mutex.  
     #[test]
     fn test_wait_for_push_notify() {
         let queue = Arc::new(ConcurrentQueue::<usize>::new());

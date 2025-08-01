@@ -1,20 +1,19 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
-use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use std::fs::File;
 use std::io::Read;
 use std::marker::PhantomData;
 use std::{fs, mem};
 
+use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
+
 use crate::common::{ANNError, ANNResult};
 use crate::model::NUM_PQ_CENTROIDS;
 use crate::storage::PQStorage;
 use crate::utils::{
-    CachedReader, CachedWriter, file_exists, gen_sample_data, get_file_size, round_up,
+    CachedReader, CachedWriter, convert_types_u32_usize, convert_types_u64_usize, file_exists,
+    gen_sample_data, get_file_size, load_bin, round_up, save_bin_u64,
 };
-use crate::utils::{convert_types_u32_usize, convert_types_u64_usize, load_bin, save_bin_u64};
 
 const SECTOR_LEN: usize = 4096;
 
@@ -72,8 +71,8 @@ impl<T> DiskIndexStorage<T> {
     /// Create disk layout
     /// Sector #1: disk_layout_meta
     /// Sector #n: num_nodes_per_sector nodes
-    /// Each node's layout: {full precision vector:[T; DIM]}{num_nbrs: u32}{neighbors: [u32; num_nbrs]}
-    /// # Arguments
+    /// Each node's layout: {full precision vector:[T; DIM]}{num_nbrs: u32}{neighbors: [u32;
+    /// num_nbrs]} # Arguments
     /// * `dataset_file` - dataset file containing full precision vectors
     /// * `mem_index_file` - in-memory index graph file
     /// * `disk_layout_file` - output disk layout file
@@ -310,9 +309,8 @@ impl<T> DiskIndexStorage<T> {
 mod disk_index_storage_test {
     use std::fs;
 
-    use crate::test_utils::get_test_file_path;
-
     use super::*;
+    use crate::test_utils::get_test_file_path;
 
     const TEST_DATA_FILE: &str = "tests/data/siftsmall_learn_256pts.fbin";
     const DISK_INDEX_PATH_PREFIX: &str = "tests/data/disk_index_siftsmall_learn_256pts_R4_L50_A1.2";

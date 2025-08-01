@@ -1,11 +1,10 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use std::mem;
 
 use vector::FullPrecisionDistance;
 
+use super::ann_disk_index::ANNDiskIndex;
 use crate::common::{ANNError, ANNResult};
 use crate::index::{ANNInmemIndex, InmemIndex};
 use crate::model::configuration::DiskIndexBuildParameters;
@@ -15,8 +14,6 @@ use crate::model::{
 };
 use crate::storage::DiskIndexStorage;
 use crate::utils::set_rayon_num_threads;
-
-use super::ann_disk_index::ANNDiskIndex;
 
 pub const OVERHEAD_FACTOR: f64 = 1.1f64;
 

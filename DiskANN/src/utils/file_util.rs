@@ -1,16 +1,15 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! File operations
 
-use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use std::fs::{self, File, OpenOptions};
 use std::io::{BufReader, Read, Seek, SeekFrom, Write};
 use std::path::Path;
 use std::{io, mem};
+
+use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 
 use crate::model::data_store::DatasetDto;
 
@@ -227,9 +226,10 @@ save_bin!(save_bin_u32, u32, write_u32);
 
 #[cfg(test)]
 mod file_util_test {
+    use std::fs;
+
     use super::*;
     use crate::model::data_store::InmemDataset;
-    use std::fs;
 
     pub const DIM_8: usize = 8;
 
@@ -251,7 +251,7 @@ mod file_util_test {
     #[test]
     fn load_data_test() {
         let file_name = "test_load_data_test.bin";
-        //npoints=2, dim=8, 2 vectors [1.0;8] [2.0;8]
+        // npoints=2, dim=8, 2 vectors [1.0;8] [2.0;8]
         let data: [u8; 72] = [
             2, 0, 0, 0, 8, 0, 0, 0, 0x00, 0x00, 0x80, 0x3f, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00,
             0x40, 0x40, 0x00, 0x00, 0x80, 0x40, 0x00, 0x00, 0xa0, 0x40, 0x00, 0x00, 0xc0, 0x40,
@@ -309,7 +309,7 @@ mod file_util_test {
 
     #[test]
     fn save_data_in_base_dimensions_test() {
-        //npoints=2, dim=8
+        // npoints=2, dim=8
         let mut data: [u8; 72] = [
             2, 0, 0, 0, 8, 0, 0, 0, 0x00, 0x00, 0x80, 0x3f, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00,
             0x40, 0x40, 0x00, 0x00, 0x80, 0x40, 0x00, 0x00, 0xa0, 0x40, 0x00, 0x00, 0xc0, 0x40,

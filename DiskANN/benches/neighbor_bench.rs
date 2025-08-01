@@ -1,11 +1,8 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use std::time::Duration;
 
 use criterion::{Criterion, black_box, criterion_group, criterion_main};
-
 use diskann::model::{Neighbor, NeighborPriorityQueue};
 use rand::SeedableRng;
 use rand::distr::{Distribution, Uniform};

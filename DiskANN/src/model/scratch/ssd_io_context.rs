@@ -1,9 +1,8 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![allow(dead_code)] // Todo: Remove this when the disk index query code is complete.
-use crate::{common::ANNError, platform::FileHandle};
+use crate::common::ANNError;
+use crate::platform::FileHandle;
 
 // The IOContext struct for disk I/O. One for each thread.
 pub struct IOContext {

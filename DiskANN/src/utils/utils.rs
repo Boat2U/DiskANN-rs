@@ -1,9 +1,8 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
-use num_traits::Num;
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 use std::sync::Mutex;
+
+use num_traits::Num;
 
 /// Non recursive mutex
 pub type NonRecursiveMutex = Mutex<()>;
@@ -90,8 +89,9 @@ convert_types!(convert_types_u32_usize, u32, usize);
 
 #[cfg(test)]
 mod file_util_test {
-    use super::*;
     use std::any::type_name;
+
+    use super::*;
 
     #[test]
     fn round_up_test() {

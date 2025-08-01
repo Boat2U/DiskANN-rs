@@ -1,14 +1,11 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT license.
- */
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT license.
 #![warn(missing_debug_implementations, missing_docs)]
 
 //! Vertex and its Adjacency List
 
-use crate::model::GRAPH_SLACK_FACTOR;
-
 use super::AdjacencyList;
+use crate::model::GRAPH_SLACK_FACTOR;
 
 /// The out neighbors of vertex_id
 #[derive(Debug)]
@@ -65,7 +62,8 @@ impl VertexAndNeighbors {
     ///
     /// # Return
     ///
-    /// Returns `None` if the node is already in the list of neighbors, or a `Vec` containing the updated list of neighbors if the list of neighbors is full.
+    /// Returns `None` if the node is already in the list of neighbors, or a `Vec` containing the
+    /// updated list of neighbors if the list of neighbors is full.
     pub fn add_to_neighbors(&mut self, node_id: u32, range: u32) -> Option<Vec<u32>> {
         // Check if n is already in the graph entry
         if self.neighbors.contains(&node_id) {
@@ -95,9 +93,8 @@ impl VertexAndNeighbors {
 
 #[cfg(test)]
 mod vertex_and_neighbors_tests {
-    use crate::model::GRAPH_SLACK_FACTOR;
-
     use super::*;
+    use crate::model::GRAPH_SLACK_FACTOR;
 
     #[test]
     fn test_set_with_capacity() {
