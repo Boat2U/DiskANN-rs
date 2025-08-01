@@ -1,10 +1,10 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT license.
 [package]
-name = "diskann"
-version = "0.1.0"
 edition = "2024"
 license = "MIT"
+name = "diskann"
+version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -16,14 +16,14 @@ cblas = "0.5.0"
 crossbeam = "0.8.2"
 half = { workspace = true }
 hashbrown = "0.13.2"
+io-uring = "0.7"
 libc = "0.2"
 num-traits = "0.2.15"
 once_cell = "1.17.1"
-rand = { workspace = true, features = [ "small_rng" ] }
+rand = { workspace = true, features = ["small_rng"] }
 rayon = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 thiserror = { workspace = true }
-io-uring = "0.7"
 vector = { workspace = true }
 
 [build-dependencies]
@@ -33,11 +33,10 @@ cc = { workspace = true }
 approx = { workspace = true }
 criterion = "0.5.1"
 
-
 [[bench]]
+harness = false
 name = "distance_bench"
-harness = false
 
 [[bench]]
-name = "neighbor_bench"
 harness = false
+name = "neighbor_bench"

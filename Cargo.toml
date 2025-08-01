@@ -3,21 +3,21 @@
 
 [workspace]
 members = [
-  "cmd_drivers/build_memory_index",
-  "cmd_drivers/build_and_insert_memory_index",
-  "cmd_drivers/load_and_insert_memory_index",
-  "cmd_drivers/convert_f32_to_bf16",
-  "cmd_drivers/search_memory_index",
-  "cmd_drivers/build_disk_index",
-  "cmd_drivers/build_and_insert_delete_memory_index",
-  "vector",
-  "DiskANN",
+    "cmd_drivers/build_memory_index",
+    "cmd_drivers/build_and_insert_memory_index",
+    "cmd_drivers/load_and_insert_memory_index",
+    "cmd_drivers/convert_f32_to_bf16",
+    "cmd_drivers/search_memory_index",
+    "cmd_drivers/build_disk_index",
+    "cmd_drivers/build_and_insert_delete_memory_index",
+    "vector",
+    "DiskANN",
 ]
 resolver = "2"
 
 [profile.release]
+codegen-units = 1
 opt-level = 3
-codegen-units=1
 
 [workspace.dependencies]
 approx = "0.5.1"
