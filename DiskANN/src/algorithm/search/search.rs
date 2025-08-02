@@ -42,9 +42,7 @@ where
     /// search for point
     /// # Arguments
     /// * `query` - query vertex
-    /// * `scratch` - in-memory query scratch
-    ///
-    /// TODO: use_filter, filteredLindex
+    /// * `scratch` - in-memory query scratch TODO: use_filter, filteredLindex
     pub fn search_for_point(
         &self,
         query: &Vertex<T, N>,

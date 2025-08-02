@@ -223,12 +223,13 @@ impl PQStorage {
         p_val = if p_val < 1f64 { p_val } else { 1f64 };
 
         let mut generator = rand::rng();
-        let distribution = Uniform::new(0.0, 1.0);
+        let distribution = Uniform::new(0.0, 1.0)
+            .unwrap_or_else(|e| panic!("Failed to create Uniform distribution: {}", e));
 
         for _ in 0..npts {
             let mut cur_vector_bytes = vec![0u8; dim * mem::size_of::<T>()];
             reader.read(&mut cur_vector_bytes)?;
-            let random_value = distribution.unwrap().sample(&mut generator);
+            let random_value = distribution.sample(&mut generator);
             if random_value < p_val {
                 let ptr = cur_vector_bytes.as_ptr() as *const T;
                 let cur_vector_t = unsafe { std::slice::from_raw_parts(ptr, dim) };

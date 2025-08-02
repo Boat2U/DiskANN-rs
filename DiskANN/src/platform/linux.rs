@@ -23,6 +23,6 @@ impl FileHandle {
     pub fn file(&self) -> &File {
         self.0
             .as_ref()
-            .expect("FileHandle should always contain a file")
+            .unwrap_or_else(|| panic!("FileHandle should always contain a file"))
     }
 }

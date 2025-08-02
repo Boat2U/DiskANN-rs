@@ -64,8 +64,8 @@ pub fn gen_sample_data<T>(data_file: &str, output_file: &str, sampling_rate: f64
     let mut num_sampled_pts = 0u32;
     let one_const = 1u32;
     let mut generator = rand::rng();
-    let distribution = Uniform::new(0.0, 1.0).expect("Uniform::new(0.0, 1.0) should never fail");
-
+    let distribution =
+        Uniform::new(0.0, 1.0).map_err(|e| ANNError::log_index_error(e.to_string()))?;
     let npts_u32 = reader.read_u32()?;
     let dim_u32 = reader.read_u32()?;
     let dim = dim_u32 as usize;
