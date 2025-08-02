@@ -20,9 +20,10 @@ impl FileHandle {
         Ok(FileHandle(Some(file)))
     }
 
+    #[allow(clippy::expect_used)]
     pub fn file(&self) -> &File {
         self.0
             .as_ref()
-            .unwrap_or_else(|| panic!("FileHandle should always contain a file"))
+            .expect("FileHandle should always contain a file")
     }
 }

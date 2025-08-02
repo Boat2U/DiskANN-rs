@@ -265,6 +265,7 @@ pub fn aggregate_coords(ids: &[u32], all_coords: &[u8], ndims: usize) -> Vec<u8>
 }
 
 #[cfg(test)]
+#[allow(clippy::upper_case_acronyms)]
 mod fixed_chunk_pq_table_test {
 
     use super::*;
@@ -272,6 +273,8 @@ mod fixed_chunk_pq_table_test {
     use crate::utils::{convert_types_u32_usize, convert_types_u64_usize, file_exists, load_bin};
 
     const DIM: usize = 128;
+    // (dim, pq_table, centroids, chunk_offsets)
+    type PQPivotData = (usize, Vec<f32>, Vec<f32>, Vec<usize>);
 
     #[test]
     fn load_pivot_test() {
@@ -419,10 +422,7 @@ mod fixed_chunk_pq_table_test {
         );
     }
 
-    fn load_pq_pivots_bin(
-        pq_pivots_path: &str,
-        num_pq_chunks: &usize,
-    ) -> ANNResult<(usize, Vec<f32>, Vec<f32>, Vec<usize>)> {
+    fn load_pq_pivots_bin(pq_pivots_path: &str, num_pq_chunks: &usize) -> ANNResult<PQPivotData> {
         if !file_exists(pq_pivots_path) {
             return Err(ANNError::log_pq_error(
                 "ERROR: PQ k-means pivot file not found.".to_string(),
@@ -476,6 +476,7 @@ mod fixed_chunk_pq_table_test {
 }
 
 #[cfg(test)]
+#[allow(clippy::identity_op)]
 mod pq_index_prune_query_test {
 
     use super::*;

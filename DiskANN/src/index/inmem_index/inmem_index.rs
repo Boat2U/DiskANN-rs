@@ -1205,8 +1205,8 @@ mod index_test {
         for i in 0..10 {
             let mut vector = vec![0.0f32; 128];
             // Create distinct vectors
-            for j in 0..128 {
-                vector[j] = (i * 128 + j) as f32 / 1000.0;
+            for (j, item) in vector.iter_mut().enumerate() {
+                *item = (i * 128 + j) as f32 / 1000.0;
             }
             test_vectors.push(vector);
         }
@@ -1259,7 +1259,7 @@ mod index_test {
             false,
             0,
             1.0f32,
-            index_write_parameters.clone(),
+            index_write_parameters,
         );
 
         // Build index from file
@@ -1341,8 +1341,8 @@ mod index_test {
         let mut initial_vectors = Vec::new();
         for i in 0..5 {
             let mut vector = vec![0.0f32; 128];
-            for j in 0..128 {
-                vector[j] = (i * 128 + j) as f32 / 1000.0;
+            for (j, item) in vector.iter_mut().enumerate() {
+                *item = (i * 128 + j) as f32 / 1000.0;
             }
             initial_vectors.push(vector);
         }
@@ -1357,8 +1357,8 @@ mod index_test {
         let mut insert_vectors = Vec::new();
         for i in 5..8 {
             let mut vector = vec![0.0f32; 128];
-            for j in 0..128 {
-                vector[j] = (i * 128 + j) as f32 / 1000.0;
+            for (j, item) in vector.iter_mut().enumerate() {
+                *item = (i * 128 + j) as f32 / 1000.0;
             }
             insert_vectors.push(vector);
         }
@@ -1503,8 +1503,8 @@ mod index_test {
         let mut test_vectors = Vec::new();
         for i in 0..10 {
             let mut vector = vec![0.0f32; 128];
-            for j in 0..128 {
-                vector[j] = (i * 128 + j) as f32 / 1000.0;
+            for (j, item) in vector.iter_mut().enumerate() {
+                *item = (i * 128 + j) as f32 / 1000.0;
             }
             test_vectors.push(vector);
         }
@@ -1565,8 +1565,8 @@ mod index_test {
         for i in 0..50 {
             // 50 vectors for basic performance test
             let mut vector = vec![0.0f32; 128];
-            for j in 0..128 {
-                vector[j] = (i * 128 + j) as f32 / 1000.0;
+            for (j, item) in vector.iter_mut().enumerate() {
+                *item = (i * 128 + j) as f32 / 1000.0;
             }
             test_vectors.push(vector);
         }

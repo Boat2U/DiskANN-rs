@@ -208,7 +208,7 @@ mod tests {
         let queue = ConcurrentQueue::new();
 
         let data = vec![1, 2, 3];
-        queue.insert(data.into_iter()).unwrap();
+        queue.insert(data).unwrap();
 
         assert_eq!(queue.pop().unwrap(), Some(1));
         assert_eq!(queue.pop().unwrap(), Some(2));

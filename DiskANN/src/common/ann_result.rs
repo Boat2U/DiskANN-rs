@@ -68,6 +68,10 @@ pub enum ANNError {
         #[from]
         err: TryFromSliceError,
     },
+
+    /// KMeans error
+    #[error("KMeansError: {err}")]
+    KMeansError { err: String },
 }
 
 impl ANNError {
@@ -97,5 +101,9 @@ impl ANNError {
 
     pub fn log_io_queue_error(err: String) -> Self {
         ANNError::IOQueueError { err }
+    }
+
+    pub fn log_kmeans_error(err: String) -> Self {
+        ANNError::KMeansError { err }
     }
 }

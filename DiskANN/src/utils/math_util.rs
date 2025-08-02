@@ -335,6 +335,7 @@ pub fn process_residuals(
 }
 
 #[cfg(test)]
+#[allow(clippy::useless_vec)]
 mod math_util_test {
     use approx::assert_abs_diff_eq;
 

@@ -132,8 +132,7 @@ where
     /// Returns visited nodes
     /// # Arguments
     /// * `query` - query vertex
-    /// * `scratch` - in-memory query scratch
-    /// TODO: use_filter, filter_label, search_invocation
+    /// * `scratch` - in-memory query scratch TODO: use_filter, filter_label, search_invocation
     fn greedy_search(
         &self,
         query: &Vertex<T, N>,

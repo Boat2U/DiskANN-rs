@@ -223,8 +223,9 @@ impl PQStorage {
         p_val = if p_val < 1f64 { p_val } else { 1f64 };
 
         let mut generator = rand::rng();
-        let distribution = Uniform::new(0.0, 1.0)
-            .unwrap_or_else(|e| panic!("Failed to create Uniform distribution: {}", e));
+        let distribution = Uniform::new(0.0, 1.0).map_err(|e| {
+            ANNError::log_pq_error(format!("Failed to create Uniform distribution: {}", e))
+        })?;
 
         for _ in 0..npts {
             let mut cur_vector_bytes = vec![0u8; dim * mem::size_of::<T>()];
@@ -301,7 +302,7 @@ mod pq_storage_tests {
         let mut buf = vec![0u8; block_size * num_pq_chunks * std::mem::size_of::<u8>()];
         result_reader.read_exact(&mut buf).unwrap();
 
-        let ptr = buf.as_ptr() as *const u8;
+        let ptr = buf.as_ptr();
         let block_data = unsafe { std::slice::from_raw_parts(ptr, block_size * num_pq_chunks) };
 
         for index in 0..block_data.len() {

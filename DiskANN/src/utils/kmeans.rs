@@ -9,7 +9,7 @@ use std::cmp::min;
 use rand::distr::{Distribution, Uniform};
 use rayon::prelude::*;
 
-use crate::common::ANNResult;
+use crate::common::{ANNError, ANNResult};
 use crate::utils::math_util::{calc_distance, compute_closest_centers, compute_vecs_l2sq};
 
 /// Run Lloyds one iteration
@@ -152,13 +152,11 @@ fn selecting_pivots(
     dim: usize,
     pivot_data: &mut [f32],
     num_centers: usize,
-) {
+) -> Result<(), ANNError> {
     let mut picked = Vec::new();
     let mut rng = rand::rng();
-    let distribution = match Uniform::new(0, num_points) {
-        Ok(d) => d,
-        Err(e) => panic!("Uniform::new failed: {}", e),
-    };
+    let distribution = Uniform::new(0, num_points)
+        .map_err(|e| ANNError::log_kmeans_error(format!("Uniform::new failed: {e}")))?;
 
     for j in 0..num_centers {
         let mut tmp_pivot = distribution.sample(&mut rng);
@@ -171,6 +169,7 @@ fn selecting_pivots(
         pivot_data[pivot_offset..pivot_offset + dim]
             .copy_from_slice(&data[data_offset..data_offset + dim]);
     }
+    Ok(())
 }
 
 /// Select pivots in k-means++ algorithm
@@ -184,26 +183,23 @@ fn k_meanspp_selecting_pivots(
     dim: usize,
     pivot_data: &mut [f32],
     num_centers: usize,
-) {
+) -> Result<(), ANNError> {
     if num_points > (1 << 23) {
         println!(
             "ERROR: n_pts {} currently not supported for k-means++, maximum is 8388608. Falling back to random pivot selection.",
             num_points
         );
-        selecting_pivots(data, num_points, dim, pivot_data, num_centers);
-        return;
+        selecting_pivots(data, num_points, dim, pivot_data, num_centers)?;
+        return Ok(());
     }
 
     let mut picked: Vec<usize> = Vec::new();
     let mut rng = rand::rng();
-    let real_distribution = match Uniform::new(0.0, 1.0) {
-        Ok(d) => d,
-        Err(e) => panic!("Uniform::new(0.0, 1.0) failed: {e}"),
-    };
-    let int_distribution = match Uniform::new(0, num_points) {
-        Ok(d) => d,
-        Err(e) => panic!("Uniform::new(0, {num_points}) failed: {e}"),
-    };
+    let real_distribution = Uniform::new(0.0, 1.0)
+        .map_err(|e| ANNError::log_kmeans_error(format!("Uniform::new(0.0, 1.0) failed: {e}")))?;
+    let int_distribution = Uniform::new(0, num_points).map_err(|e| {
+        ANNError::log_kmeans_error(format!("Uniform::new(0, {num_points}) failed: {e}"))
+    })?;
 
     let init_id = int_distribution.sample(&mut rng);
     let mut num_picked = 1;
@@ -269,6 +265,7 @@ fn k_meanspp_selecting_pivots(
 
         num_picked += 1;
     }
+    Ok(())
 }
 
 /// k-means algorithm interface
@@ -280,7 +277,7 @@ pub fn k_means_clustering(
     num_centers: usize,
     max_reps: usize,
 ) -> ANNResult<(Vec<Vec<usize>>, Vec<u32>, f32)> {
-    k_meanspp_selecting_pivots(data, num_points, dim, centers, num_centers);
+    k_meanspp_selecting_pivots(data, num_points, dim, centers, num_centers)?;
     let (closest_docs, closest_center, residual) =
         run_lloyds(data, num_points, dim, centers, num_centers, max_reps)?;
     Ok((closest_docs, closest_center, residual))
@@ -384,7 +381,7 @@ mod kmeans_test {
 
         let mut pivot_data = vec![0.0; num_centers * dim];
 
-        selecting_pivots(&data, num_points, dim, &mut pivot_data, num_centers);
+        selecting_pivots(&data, num_points, dim, &mut pivot_data, num_centers).unwrap();
 
         // Verify that each pivot point corresponds to a point in the data
         for i in 0..num_centers {
@@ -418,7 +415,7 @@ mod kmeans_test {
 
         let mut pivot_data = vec![0.0; num_centers * dim];
 
-        k_meanspp_selecting_pivots(&data, num_points, dim, &mut pivot_data, num_centers);
+        k_meanspp_selecting_pivots(&data, num_points, dim, &mut pivot_data, num_centers).unwrap();
 
         // Verify that each pivot point corresponds to a point in the data
         for i in 0..num_centers {
