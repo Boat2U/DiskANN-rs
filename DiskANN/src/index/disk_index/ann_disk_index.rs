@@ -13,6 +13,7 @@ use crate::model::{DiskIndexBuildParameters, IndexConfiguration};
 use crate::storage::DiskIndexStorage;
 
 /// ANN disk index abstraction for custom <T, N>
+#[allow(clippy::upper_case_acronyms)]
 pub trait ANNDiskIndex<T>: Sync + Send
 where
     T: Default + Copy + Sync + Send + Into<f32>,

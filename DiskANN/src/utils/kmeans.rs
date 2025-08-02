@@ -155,7 +155,8 @@ fn selecting_pivots(
 ) {
     let mut picked = Vec::new();
     let mut rng = rand::rng();
-    let distribution = Uniform::new(0, num_points).unwrap();
+    let distribution =
+        Uniform::new(0, num_points).expect("Uniform::new failed: num_points must be > 0");
 
     for j in 0..num_centers {
         let mut tmp_pivot = distribution.sample(&mut rng);
@@ -193,8 +194,10 @@ fn k_meanspp_selecting_pivots(
 
     let mut picked: Vec<usize> = Vec::new();
     let mut rng = rand::rng();
-    let real_distribution = Uniform::new(0.0, 1.0).unwrap();
-    let int_distribution = Uniform::new(0, num_points).unwrap();
+    let real_distribution =
+        Uniform::new(0.0, 1.0).expect("Uniform::new(0.0, 1.0) should never fail");
+    let int_distribution =
+        Uniform::new(0, num_points).expect("Uniform::new failed: num_points must be > 0");
 
     let init_id = int_distribution.sample(&mut rng);
     let mut num_picked = 1;

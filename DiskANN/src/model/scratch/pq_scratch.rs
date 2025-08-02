@@ -10,6 +10,7 @@ use crate::common::{ANNResult, AlignedBoxWithSlice};
 
 const MAX_PQ_CHUNKS: usize = 512;
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug)]
 /// PQ scratch
 pub struct PQScratch {

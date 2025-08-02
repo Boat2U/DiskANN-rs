@@ -66,7 +66,7 @@ where
 
                 // Add the entry to the result if its not been deleted, and doesn't
                 // add a self loop
-                if delete_set_ptr.map_or(true, |delete_set| !delete_set.contains(&neighbor.id))
+                if delete_set_ptr.is_none_or(|delete_set| !delete_set.contains(&neighbor.id))
                     && neighbor.id != location
                 {
                     result.push(neighbor.id);

@@ -64,7 +64,7 @@ where
         );
         self.num_active_pts = num_points_to_load;
 
-        copy_aligned_data_from_file(filename, self.into_dto(), 0)?;
+        copy_aligned_data_from_file(filename, self.as_dto(), 0)?;
 
         println!("Dataset loaded.");
         Ok(())
@@ -88,7 +88,7 @@ where
         }
 
         let pts_offset = self.num_active_pts;
-        copy_aligned_data_from_file(filename, self.into_dto(), pts_offset)?;
+        copy_aligned_data_from_file(filename, self.as_dto(), pts_offset)?;
 
         self.num_active_pts += num_points_to_append;
         self.num_points += num_points_to_append;
@@ -317,7 +317,7 @@ where
     }
 
     /// Convert into dto object
-    pub fn into_dto(&mut self) -> DatasetDto<T> {
+    pub fn as_dto(&mut self) -> DatasetDto<T> {
         DatasetDto {
             data: &mut self.data,
             rounded_dim: N,
@@ -384,7 +384,7 @@ mod dataset_test {
 
         let mut dataset = InmemDataset::<f32, 8>::new(2, 1f32).unwrap();
 
-        match copy_aligned_data_from_file(file_name, dataset.into_dto(), 0) {
+        match copy_aligned_data_from_file(file_name, dataset.as_dto(), 0) {
             Ok((npts, dim)) => {
                 fs::remove_file(file_name).expect("Failed to delete file");
                 assert!(npts == 2);
@@ -456,7 +456,7 @@ mod dataset_test {
         std::fs::write(file_name, data).expect("Failed to write test file");
 
         let mut file_dataset = InmemDataset::<f32, 8>::new(2, 1f32).unwrap();
-        copy_aligned_data_from_file(file_name, file_dataset.into_dto(), 0).unwrap();
+        copy_aligned_data_from_file(file_name, file_dataset.as_dto(), 0).unwrap();
         fs::remove_file(file_name).expect("Failed to delete test file");
 
         // Compare results

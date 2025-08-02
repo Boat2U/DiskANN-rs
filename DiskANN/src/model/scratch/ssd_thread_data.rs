@@ -9,6 +9,7 @@ use crate::common::ANNResult;
 
 // The thread data struct for SSD I/O. One for each thread, contains the ScratchSpace and the
 // IOContext.
+#[allow(clippy::upper_case_acronyms)]
 pub struct SSDThreadData<T: Default + Copy, const N: usize> {
     pub scratch: SSDQueryScratch<T, N>,
     pub io_context: Option<Arc<IOContext>>,

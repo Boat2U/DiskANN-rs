@@ -22,7 +22,7 @@ struct PivotContainer {
 
 impl PartialOrd for PivotContainer {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        other.piv_dist.partial_cmp(&self.piv_dist)
+        Some(self.cmp(other)) // other.piv_dist.partial_cmp(&self.piv_dist)
     }
 }
 

@@ -20,7 +20,7 @@ impl<'a> SortedNeighborVector<'a> {
     }
 }
 
-impl<'a> Deref for SortedNeighborVector<'a> {
+impl Deref for SortedNeighborVector<'_> {
     type Target = Vec<Neighbor>;
 
     fn deref(&self) -> &Self::Target {
@@ -28,7 +28,7 @@ impl<'a> Deref for SortedNeighborVector<'a> {
     }
 }
 
-impl<'a> DerefMut for SortedNeighborVector<'a> {
+impl DerefMut for SortedNeighborVector<'_> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.0
     }

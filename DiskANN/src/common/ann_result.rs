@@ -5,10 +5,12 @@ use std::array::TryFromSliceError;
 use std::num::TryFromIntError;
 
 /// Result
+#[allow(clippy::upper_case_acronyms)]
 pub type ANNResult<T> = Result<T, ANNError>;
 
 /// DiskANN Error
 /// ANNError is `Send` (i.e., safe to send across threads)
+#[allow(clippy::upper_case_acronyms, clippy::enum_variant_names)]
 #[derive(thiserror::Error, Debug)]
 pub enum ANNError {
     /// Index construction and search error
@@ -70,10 +72,7 @@ pub enum ANNError {
 
 impl ANNError {
     pub fn log_index_config_error(parameter: String, err: String) -> Self {
-        ANNError::IndexConfigError {
-            parameter: parameter,
-            err,
-        }
+        ANNError::IndexConfigError { parameter, err }
     }
 
     pub fn log_index_error(err: String) -> Self {

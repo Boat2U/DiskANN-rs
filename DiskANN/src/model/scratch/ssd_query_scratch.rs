@@ -12,6 +12,7 @@ use crate::model::data_store::DiskScratchDataset;
 use crate::model::{Neighbor, NeighborPriorityQueue};
 
 // Scratch space for disk index based search.
+#[allow(clippy::upper_case_acronyms)]
 pub struct SSDQueryScratch<T: Default + Copy, const N: usize> {
     // Disk scratch dataset storing fp vectors with aligned dim (N)
     pub scratch_dataset: DiskScratchDataset<T, N>,

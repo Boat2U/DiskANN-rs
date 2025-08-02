@@ -18,7 +18,7 @@ use crate::utils::{
 const SECTOR_LEN: usize = 4096;
 
 /// Todo: Remove the allow(dead_code) when the disk search code is complete
-#[allow(dead_code)]
+#[allow(dead_code, clippy::upper_case_acronyms)]
 pub struct PQPivotData {
     dim: usize,
     pq_table: Vec<f32>,

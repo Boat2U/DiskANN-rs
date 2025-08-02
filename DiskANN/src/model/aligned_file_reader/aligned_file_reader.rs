@@ -47,8 +47,7 @@ pub struct LinuxAlignedFileReader {
 
 impl LinuxAlignedFileReader {
     pub fn new() -> ANNResult<Self> {
-        let ring =
-            IoUring::new(MAX_IO_CONCURRENCY as u32).map_err(|e| ANNError::log_io_error(e))?;
+        let ring = IoUring::new(MAX_IO_CONCURRENCY as u32).map_err(ANNError::log_io_error)?;
         Ok(Self { ring })
     }
 
@@ -90,12 +89,14 @@ impl LinuxAlignedFileReader {
 
             self.ring
                 .submit_and_wait(batch_size)
-                .map_err(|e| ANNError::log_io_error(e))?;
+                .map_err(ANNError::log_io_error)?;
             submitted_count += batch_size;
 
             let mut cq = self.ring.completion();
             for _ in 0..batch_size {
-                let cqe = cq.next().expect("Completion queue is empty");
+                let cqe = cq.next().ok_or_else(|| {
+                    ANNError::log_io_queue_error("Completion queue is empty".to_string())
+                })?;
                 if cqe.result() < 0 {
                     return Err(ANNError::log_io_queue_error(format!(
                         "Async read failed with error: {}",

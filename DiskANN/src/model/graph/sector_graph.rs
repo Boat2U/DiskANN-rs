@@ -65,7 +65,7 @@ impl SectorGraph {
         }
 
         let ctx = self.graph_storage.get_ctx();
-        self.graph_storage.read(&mut read_requests, &ctx)?;
+        self.graph_storage.read(&mut read_requests, ctx)?;
         self.cur_sector_idx += sectors_to_fetch.len() as u64;
 
         Ok(())

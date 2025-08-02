@@ -12,6 +12,7 @@ use crate::model::IndexConfiguration;
 use crate::model::vertex::{DIM_104, DIM_128, DIM_256};
 
 /// ANN inmem-index abstraction for custom <T, N>
+#[allow(clippy::upper_case_acronyms)]
 pub trait ANNInmemIndex<T>: Sync + Send
 where
     T: Default + Copy + Sync + Send + Into<f32>,

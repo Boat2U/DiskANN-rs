@@ -26,6 +26,7 @@ impl CachedWriter {
         let writer = OpenOptions::new()
             .write(true)
             .create(true)
+            .truncate(true)
             .open(Path::new(filename))?;
 
         if cache_size == 0 {

@@ -169,7 +169,7 @@ impl<'a> IntoIterator for &'a DiskGraph {
     }
 }
 
-impl<'a> Iterator for DiskGraphIntoIterator<'a> {
+impl Iterator for DiskGraphIntoIterator<'_> {
     type Item = ANNResult<(usize, VertexAndNeighbors)>;
 
     fn next(&mut self) -> Option<Self::Item> {

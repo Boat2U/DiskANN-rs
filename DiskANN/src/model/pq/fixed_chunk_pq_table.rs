@@ -13,6 +13,7 @@ use crate::common::{ANNError, ANNResult};
 use crate::model::NUM_PQ_CENTROIDS;
 
 /// PQ Pivot table loading and calculate distance
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug)]
 pub struct FixedChunkPQTable {
     /// pq_tables = float array of size [256 * ndims]
@@ -40,7 +41,7 @@ pub struct FixedChunkPQTable {
     ///   2, 5,
     ///   3, 6]
     /// transport_pq_table: Vec<f32>,
-
+    ///
     /// Map dim offset to chunk index e.g., 8 dims in to 2 chunks
     /// then would be [(0,0), (1,0), (2,0), (3,0), (4,1), (5,1), (6,1), (7,1)]
     dimoffset_chunk_mapping: HashMap<usize, usize>,

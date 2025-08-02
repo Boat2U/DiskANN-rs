@@ -38,8 +38,12 @@ impl<T> AlignedBoxWithSlice<T> {
     /// for the type `T` and that the memory is initialized before accessing the elements
     /// of the slice.
     pub fn new(capacity: usize, alignment: usize) -> ANNResult<Self> {
-        let allocsize = capacity.checked_mul(std::mem::size_of::<T>()).unwrap();
-        let layout = Layout::from_size_align(allocsize, alignment).unwrap();
+        let allocsize = capacity
+            .checked_mul(std::mem::size_of::<T>())
+            .ok_or_else(|| ANNError::log_index_error("Allocation size overflow".to_string()))?;
+
+        let layout = Layout::from_size_align(allocsize, alignment)
+            .map_err(|e| ANNError::log_index_error(format!("Invalid layout: {}", e)))?;
 
         let val = unsafe {
             let mem = std::alloc::alloc_zeroed(layout);

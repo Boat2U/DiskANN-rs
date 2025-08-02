@@ -6,7 +6,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use crate::common::ANNResult;
+use crate::common::{ANNError, ANNResult};
 use crate::model::{AlignedRead, IOContext, LinuxAlignedFileReader};
 
 /// Graph storage for disk index
@@ -40,7 +40,7 @@ impl DiskGraphStorage {
     pub fn read<T>(&self, read_requests: &mut [AlignedRead<T>], ctx: &IOContext) -> ANNResult<()> {
         self.disk_graph_reader
             .lock()
-            .unwrap()
+            .map_err(|e| ANNError::log_index_error(format!("Mutex poisoned: {e}")))?
             .read(read_requests, ctx)
     }
 }

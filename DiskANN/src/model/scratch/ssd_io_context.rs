@@ -5,6 +5,7 @@ use crate::common::ANNError;
 use crate::platform::FileHandle;
 
 // The IOContext struct for disk I/O. One for each thread.
+#[allow(clippy::upper_case_acronyms)]
 pub struct IOContext {
     pub status: Status,
     pub file_handle: FileHandle,

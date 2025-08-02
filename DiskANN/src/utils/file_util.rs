@@ -263,7 +263,7 @@ mod file_util_test {
 
         let mut dataset = InmemDataset::<f32, DIM_8>::new(2, 1f32).unwrap();
 
-        match copy_aligned_data_from_file(file_name, dataset.into_dto(), 0) {
+        match copy_aligned_data_from_file(file_name, dataset.as_dto(), 0) {
             Ok((num_points, dim)) => {
                 fs::remove_file(file_name).expect("Failed to delete file");
                 assert!(num_points == 2);

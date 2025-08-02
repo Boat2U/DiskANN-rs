@@ -311,7 +311,7 @@ where
         Ok(cmp)
     }
 
-    fn cleanup_graph(&mut self, visit_order: &Vec<u32>) -> ANNResult<()> {
+    fn cleanup_graph(&mut self, visit_order: &[u32]) -> ANNResult<()> {
         if self.num_active_pts > 0 {
             println!("Starting final cleanup..");
         }
@@ -382,7 +382,7 @@ where
     /// Returns an `ANNError` if there is an error retrieving the vertex or one of its neighbors.
     pub fn get_unique_neighbors(
         &self,
-        neighbors: &Vec<u32>,
+        neighbors: &[u32],
         vertex_id: u32,
     ) -> Result<Vec<Neighbor>, ANNError> {
         let vertex = self.dataset.get_vertex(vertex_id)?;

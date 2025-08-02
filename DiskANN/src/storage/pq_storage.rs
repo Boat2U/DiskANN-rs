@@ -15,6 +15,7 @@ use crate::utils::{
 };
 
 #[derive(Debug)]
+#[allow(clippy::upper_case_acronyms)]
 pub struct PQStorage {
     /// Pivot table path
     pivot_file: String,
