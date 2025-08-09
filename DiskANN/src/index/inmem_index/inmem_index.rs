@@ -919,6 +919,23 @@ where
 
         Ok(())
     }
+
+    fn get_aligned_vector_data(&self, vector_id: u32) -> ANNResult<&[T]> {
+        // Calculate the start and end positions in the aligned dataset
+        let start = (vector_id as usize) * N;
+        let end = start + N;
+
+        // Validate bounds
+        if end > self.dataset.data.len() {
+            return Err(ANNError::log_index_error(format!(
+                "Invalid vector id {}.",
+                vector_id
+            )));
+        }
+
+        // Return direct slice reference from aligned dataset (zero-copy!)
+        Ok(&self.dataset.data[start..end])
+    }
 }
 
 #[cfg(test)]

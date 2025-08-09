@@ -63,6 +63,14 @@ where
             "insert_from_memory not implemented".to_string(),
         ))
     }
+
+    /// Get 64-byte aligned vector reference by vector ID for zero-copy SIMD operations
+    /// Default implementation returns not supported error for backward compatibility
+    fn get_aligned_vector_data(&self, _vector_id: u32) -> ANNResult<&[T]> {
+        Err(ANNError::log_index_error(
+            "get_aligned_vector_data not implemented".to_string(),
+        ))
+    }
 }
 
 /// Create Index<T, N> based on configuration
