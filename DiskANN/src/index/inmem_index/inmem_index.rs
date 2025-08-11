@@ -286,8 +286,11 @@ where
             if scratch.best_candidates[i].id < self.configuration.max_points as u32 {
                 // Filter out the deleted points.
                 if let Ok(delete_set_guard) = self.delete_set.read() {
-                    if !delete_set_guard.contains(&scratch.best_candidates[i].id) 
-                        && filter_mask.is_none_or(|m| m.contains_vector(scratch.best_candidates[i].id)){    // pre-filter
+                    if !delete_set_guard.contains(&scratch.best_candidates[i].id)
+                        && filter_mask
+                            .is_none_or(|m| m.contains_vector(scratch.best_candidates[i].id))
+                    {
+                        // pre-filter
                         indices[pos] = scratch.best_candidates[i].id;
                         pos += 1;
                     }
