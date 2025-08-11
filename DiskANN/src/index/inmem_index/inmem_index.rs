@@ -8,7 +8,7 @@ use hashbrown::HashSet;
 use hashbrown::hash_set::Entry::*;
 use vector::FullPrecisionDistance;
 
-use crate::common::{ANNError, ANNResult};
+use crate::common::{ANNError, ANNResult, FilterIndex};
 use crate::index::ANNInmemIndex;
 use crate::model::graph::AdjacencyList;
 use crate::model::{
@@ -249,6 +249,7 @@ where
         k_value: usize,
         l_value: u32,
         indices: &mut [u32],
+        filter_mask: Option<&dyn FilterIndex>,
     ) -> ANNResult<u32> {
         if k_value > l_value as usize {
             return Err(ANNError::log_index_error(format!(
@@ -285,7 +286,8 @@ where
             if scratch.best_candidates[i].id < self.configuration.max_points as u32 {
                 // Filter out the deleted points.
                 if let Ok(delete_set_guard) = self.delete_set.read() {
-                    if !delete_set_guard.contains(&scratch.best_candidates[i].id) {
+                    if !delete_set_guard.contains(&scratch.best_candidates[i].id) 
+                        && filter_mask.is_none_or(|m| m.contains_vector(scratch.best_candidates[i].id)){    // pre-filter
                         indices[pos] = scratch.best_candidates[i].id;
                         pos += 1;
                     }
@@ -740,9 +742,10 @@ where
         k_value: usize,
         l_value: u32,
         indices: &mut [u32],
+        filter_mask: Option<&dyn FilterIndex>,
     ) -> ANNResult<u32> {
         let query_vector = Vertex::new(<&[T; N]>::try_from(query)?, 0);
-        InmemIndex::search(self, &query_vector, k_value, l_value, indices)
+        InmemIndex::search(self, &query_vector, k_value, l_value, indices, filter_mask)
     }
 
     fn soft_delete(
@@ -1246,7 +1249,7 @@ mod index_test {
         // Test search functionality
         let query_vertex = index.dataset.get_vertex(0).unwrap();
         let mut indices = vec![0u32; 3];
-        let search_result = index.search(&query_vertex, 3, 50, &mut indices);
+        let search_result = index.search(&query_vertex, 3, 50, &mut indices, None);
         assert!(search_result.is_ok(), "Search should succeed");
 
         // The first result should be the query vector itself (index 0)
@@ -1315,13 +1318,13 @@ mod index_test {
 
             let k = 5.min(test_num_points);
             file_index
-                .search(&query_vertex, k, 50, &mut file_results)
+                .search(&query_vertex, k, 50, &mut file_results, None)
                 .unwrap();
 
             // Get corresponding vertex from memory index for search
             let memory_query_vertex = memory_index.dataset.get_vertex(0).unwrap();
             memory_index
-                .search(&memory_query_vertex, k, 50, &mut memory_results)
+                .search(&memory_query_vertex, k, 50, &mut memory_results, None)
                 .unwrap();
 
             // Results should be identical for the same data
@@ -1399,7 +1402,7 @@ mod index_test {
         // Test search on inserted vectors
         let query_vertex = index.dataset.get_vertex(5).unwrap(); // First inserted vector
         let mut indices = vec![0u32; 3];
-        let search_result = index.search(&query_vertex, 3, 50, &mut indices);
+        let search_result = index.search(&query_vertex, 3, 50, &mut indices, None);
         assert!(search_result.is_ok(), "Search should find inserted vectors");
 
         // The inserted vector should be findable
@@ -1542,7 +1545,7 @@ mod index_test {
                 thread::spawn(move || {
                     let mut indices = vec![0u32; 3];
                     let query_vertex = index_clone.dataset.get_vertex(query_idx).unwrap();
-                    let result = index_clone.search(&query_vertex, 3, 50, &mut indices);
+                    let result = index_clone.search(&query_vertex, 3, 50, &mut indices, None);
                     (result.is_ok(), indices)
                 })
             })
@@ -1604,7 +1607,7 @@ mod index_test {
         let mut indices = vec![0u32; 5];
 
         let start = Instant::now();
-        let search_result = index.search(&query_vertex, 5, 50, &mut indices);
+        let search_result = index.search(&query_vertex, 5, 50, &mut indices, None);
         let search_time = start.elapsed();
 
         assert!(search_result.is_ok(), "Search should succeed");

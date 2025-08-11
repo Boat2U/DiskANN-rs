@@ -7,7 +7,7 @@
 use vector::FullPrecisionDistance;
 
 use super::InmemIndex;
-use crate::common::{ANNError, ANNResult};
+use crate::common::{ANNError, ANNResult, FilterIndex};
 use crate::model::IndexConfiguration;
 use crate::model::vertex::{DIM_104, DIM_128, DIM_256};
 
@@ -37,6 +37,7 @@ where
         k_value: usize,
         l_value: u32,
         indices: &mut [u32],
+        filter_mask: Option<&dyn FilterIndex>,
     ) -> ANNResult<u32>;
 
     /// Soft deletes the nodes with the ids in the given array.
@@ -183,7 +184,7 @@ mod dataset_test {
 
         // Test search functionality
         let mut indices = vec![0u32; 2];
-        let search_result = index.search(&vector1, 2, 50, &mut indices);
+        let search_result = index.search(&vector1, 2, 50, &mut indices, None);
         assert!(
             search_result.is_ok(),
             "Search should succeed after build_from_memory"
@@ -236,6 +237,7 @@ mod dataset_test {
                 _k_value: usize,
                 _l_value: u32,
                 _indices: &mut [u32],
+                _filter_mask: Option<&dyn FilterIndex>,
             ) -> crate::common::ANNResult<u32> {
                 Ok(0)
             }
@@ -310,6 +312,7 @@ mod dataset_test {
                 _k_value: usize,
                 _l_value: u32,
                 _indices: &mut [u32],
+                _filter_mask: Option<&dyn FilterIndex>,
             ) -> crate::common::ANNResult<u32> {
                 Ok(0)
             }
