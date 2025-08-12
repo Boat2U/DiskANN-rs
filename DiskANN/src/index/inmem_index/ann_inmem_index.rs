@@ -38,6 +38,7 @@ where
         l_value: u32,
         indices: &mut [u32],
         filter_mask: Option<&dyn FilterIndex>,
+        should_pre: bool,
     ) -> ANNResult<u32>;
 
     /// Soft deletes the nodes with the ids in the given array.
@@ -184,7 +185,7 @@ mod dataset_test {
 
         // Test search functionality
         let mut indices = vec![0u32; 2];
-        let search_result = index.search(&vector1, 2, 50, &mut indices, None);
+        let search_result = index.search(&vector1, 2, 50, &mut indices, None, false);
         assert!(
             search_result.is_ok(),
             "Search should succeed after build_from_memory"
@@ -238,6 +239,7 @@ mod dataset_test {
                 _l_value: u32,
                 _indices: &mut [u32],
                 _filter_mask: Option<&dyn FilterIndex>,
+                _should_pre: bool,
             ) -> crate::common::ANNResult<u32> {
                 Ok(0)
             }
@@ -313,6 +315,7 @@ mod dataset_test {
                 _l_value: u32,
                 _indices: &mut [u32],
                 _filter_mask: Option<&dyn FilterIndex>,
+                _should_pre: bool,
             ) -> crate::common::ANNResult<u32> {
                 Ok(0)
             }

@@ -7,7 +7,7 @@
 use hashbrown::hash_set::Entry::*;
 use vector::FullPrecisionDistance;
 
-use crate::common::{ANNError, ANNResult};
+use crate::common::{ANNError, ANNResult, FilterIndex};
 use crate::index::InmemIndex;
 use crate::model::scratch::InMemQueryScratch;
 use crate::model::{Neighbor, Vertex};
@@ -27,14 +27,16 @@ where
         query: &Vertex<T, N>,
         scratch: &mut InMemQueryScratch<T, N>,
         search_list_size: usize,
+        filter_mask: Option<&dyn FilterIndex>,
+        should_pre: bool,
     ) -> ANNResult<u32> {
-        let init_ids = self.get_init_ids()?;
+        let init_ids = self.get_init_ids(filter_mask, should_pre)?;
         self.init_graph_for_point(query, init_ids, scratch)?;
         // Scratch is created using largest L val from search_memory_index, so we artificially make
         // it smaller here This allows us to use the same scratch for all L values without
         // having to rebuild the query scratch
         scratch.best_candidates.set_capacity(search_list_size);
-        let (_, cmp) = self.greedy_search(query, scratch)?;
+        let (_, cmp) = self.greedy_search(query, scratch, filter_mask, should_pre)?;
 
         Ok(cmp)
     }
@@ -48,9 +50,9 @@ where
         query: &Vertex<T, N>,
         scratch: &mut InMemQueryScratch<T, N>,
     ) -> ANNResult<Vec<Neighbor>> {
-        let init_ids = self.get_init_ids()?;
+        let init_ids = self.get_init_ids(None, false)?;
         self.init_graph_for_point(query, init_ids, scratch)?;
-        let (mut visited_nodes, _) = self.greedy_search(query, scratch)?;
+        let (mut visited_nodes, _) = self.greedy_search(query, scratch, None, false)?;
 
         visited_nodes.retain(|&element| element.id != query.vertex_id());
         Ok(visited_nodes)
@@ -58,9 +60,27 @@ where
 
     /// Returns the locations of start point and frozen points suitable for use with
     /// iterate_to_fixed_point.
-    fn get_init_ids(&self) -> ANNResult<Vec<u32>> {
+    fn get_init_ids(
+        &self,
+        filter_mask: Option<&dyn FilterIndex>,
+        should_pre: bool,
+    ) -> ANNResult<Vec<u32>> {
         let mut init_ids = Vec::with_capacity(1 + self.configuration.num_frozen_pts);
         init_ids.push(self.start);
+
+        // If pre-filtering is enabled and self.start doesn't satisfy filter condition,
+        // add the first point that satisfies the filter condition
+        if let (Some(filter), true) = (filter_mask, should_pre) {
+            if !filter.contains_vector(self.start) {
+                // Find first point that satisfies filter condition
+                for id in 0..self.configuration.max_points as u32 {
+                    if filter.contains_vector(id) {
+                        init_ids.push(id);
+                        break;
+                    }
+                }
+            }
+        }
 
         for frozen in self.configuration.max_points
             ..(self.configuration.max_points + self.configuration.num_frozen_pts)
@@ -137,6 +157,8 @@ where
         &self,
         query: &Vertex<T, N>,
         scratch: &mut InMemQueryScratch<T, N>,
+        filter_mask: Option<&dyn FilterIndex>,
+        should_pre: bool,
     ) -> ANNResult<(Vec<Neighbor>, u32)> {
         let mut visited_nodes =
             Vec::with_capacity((3 * scratch.candidate_size + scratch.max_degree) as usize);
@@ -184,7 +206,15 @@ where
                 // quickly de-dup. Remember, we are in a read lock
                 // we want to exit out of it quickly
                 if scratch.node_visited_robinset.insert(current_vertex_id) {
-                    scratch.id_scratch.push(current_vertex_id);
+                    // Apply pre-filtering if enabled
+                    if let (Some(filter), true) = (filter_mask, should_pre) {
+                        if filter.contains_vector(current_vertex_id) {
+                            scratch.id_scratch.push(current_vertex_id);
+                        }
+                    } else {
+                        // No pre-filtering, add all unvisited neighbors
+                        scratch.id_scratch.push(current_vertex_id);
+                    }
                 }
             }
 
@@ -238,7 +268,7 @@ mod search_test {
         );
 
         let index = InmemIndex::<f32, 256>::new(config).unwrap();
-        let init_ids = index.get_init_ids().unwrap();
+        let init_ids = index.get_init_ids(None, false).unwrap();
         assert_eq!(init_ids.len(), 1);
         assert_eq!(init_ids[0], 256);
     }
@@ -262,7 +292,7 @@ mod search_test {
         );
 
         let index = InmemIndex::<f32, 256>::new(config).unwrap();
-        let init_ids = index.get_init_ids().unwrap();
+        let init_ids = index.get_init_ids(None, false).unwrap();
         assert_eq!(init_ids.len(), 2);
         assert_eq!(init_ids[0], 256);
         assert_eq!(init_ids[1], 257);

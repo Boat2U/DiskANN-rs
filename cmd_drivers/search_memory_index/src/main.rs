@@ -150,7 +150,7 @@ where
         zipped.for_each(|(((cmp, latency), query_result), query_chunk)| {
             let query_start = Instant::now();
             *cmp = index
-                .search(query_chunk, recall_at as usize, l_value, query_result)
+                .search(query_chunk, recall_at as usize, l_value, query_result, None, false)
                 .unwrap();
 
             let query_end = Instant::now();
