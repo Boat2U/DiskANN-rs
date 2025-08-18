@@ -799,7 +799,15 @@ where
             ));
         }
 
-        // Validate all vectors have the same dimension as configured
+        let num_points = vectors.len();
+
+        if num_points > self.configuration.max_points {
+            return Err(ANNError::log_index_error(format!(
+                "ERROR: Cannot load {} vectors, index can support only {} points as specified in configuration.",
+                num_points, self.configuration.max_points
+            )));
+        }
+
         for (i, vector) in vectors.iter().enumerate() {
             if vector.len() != self.configuration.dim {
                 return Err(ANNError::log_index_error(format!(
@@ -809,15 +817,6 @@ where
                     self.configuration.dim
                 )));
             }
-        }
-
-        // Check we don't exceed configured capacity
-        if vectors.len() > self.configuration.max_points {
-            return Err(ANNError::log_index_error(format!(
-                "ERROR: Cannot load {} vectors, index can support only {} points as specified in configuration.",
-                vectors.len(),
-                self.configuration.max_points
-            )));
         }
 
         if self.configuration.use_pq_dist {
@@ -831,13 +830,13 @@ where
 
         // Use dataset's new memory interface
         self.dataset
-            .build_from_memory(vectors, vectors.len(), self.configuration.dim)?;
+            .build_from_memory(vectors, num_points, self.configuration.dim)?;
 
-        println!("Using {} vectors from memory.", vectors.len());
+        println!("Using {} vectors from memory.", num_points);
 
         // TODO: tag_lock
 
-        self.num_active_pts = vectors.len();
+        self.num_active_pts = num_points;
         self.build_with_data_populated()?;
 
         Ok(())
@@ -847,6 +846,8 @@ where
         if vectors.is_empty() {
             return Ok(()); // Nothing to insert
         }
+
+        let num_points = vectors.len();
 
         // Validate all vectors have the same dimension as configured
         for (i, vector) in vectors.iter().enumerate() {
@@ -858,15 +859,6 @@ where
                     self.configuration.dim
                 )));
             }
-        }
-
-        // Check we don't exceed configured capacity
-        if self.num_active_pts + vectors.len() > self.configuration.max_points {
-            return Err(ANNError::log_index_error(format!(
-                "ERROR: Cannot insert {} vectors, would exceed maximum capacity of {} points.",
-                vectors.len(),
-                self.configuration.max_points
-            )));
         }
 
         if self.configuration.use_pq_dist {
@@ -897,19 +889,19 @@ where
 
         // Use dataset's memory append functionality
         self.dataset
-            .append_from_memory(vectors, vectors.len(), self.configuration.dim)?;
+            .append_from_memory(vectors, num_points, self.configuration.dim)?;
 
         self.final_graph.extend(
-            vectors.len(),
+            num_points,
             self.configuration.index_write_parameter.max_degree,
         );
 
         // TODO: this should not consider frozen points
         let previous_last_pt = self.num_active_pts;
-        self.num_active_pts += vectors.len();
-        self.configuration.max_points += vectors.len();
+        self.num_active_pts += num_points;
+        self.configuration.max_points += num_points;
 
-        println!("Inserting {} vectors from memory.", vectors.len());
+        println!("Inserting {} vectors from memory.", num_points);
 
         // TODO: tag_lock
         let timer = Timer::new();
