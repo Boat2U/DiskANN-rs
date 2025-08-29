@@ -9,28 +9,29 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bincode = { workspace = true }
+bincode = "1.3.3"
 bit-vec = "0.6.3"
 byteorder = "1.4.3"
 cblas = "0.5.0"
 crossbeam = "0.8.2"
-half = { workspace = true }
+half = "2.2.1"
 hashbrown = "0.13.2"
 io-uring = "0.7"
 libc = "0.2"
 num-traits = "0.2.15"
 once_cell = "1.17.1"
-rand = { workspace = true, features = ["small_rng"] }
-rayon = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
-thiserror = { workspace = true }
-vector = { workspace = true }
+rand = { version = "0.9", features = ["small_rng"] }
+rayon = "1.7.0"
+serde = { version = "1.0.219", features = ["derive"] }
+thiserror = { version = "2.0.12" }
+
+vector = { path = "../vector", version = "0.1.0" }
 
 [build-dependencies]
-cc = { workspace = true }
+cc = "1.0.79"
 
 [dev-dependencies]
-approx = { workspace = true }
+approx = "0.5.1"
 criterion = "0.5.1"
 
 [[bench]]
@@ -40,6 +41,3 @@ name = "distance_bench"
 [[bench]]
 harness = false
 name = "neighbor_bench"
-
-[package.metadata.cargo-machete]
-ignored = ["bincode", "crossbeam", "half", "once_cell", "serde"]
