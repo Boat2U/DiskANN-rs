@@ -149,8 +149,9 @@ where
         let start = Instant::now();
         zipped.for_each(|(((cmp, latency), query_result), query_chunk)| {
             let query_start = Instant::now();
+            let mut query_distances = vec![0.0f32; query_result.len()];
             *cmp = index
-                .search(query_chunk, recall_at as usize, l_value, query_result, None, false)
+                .search(query_chunk, recall_at as usize, l_value, query_result, &mut query_distances, None, false)
                 .unwrap();
 
             let query_end = Instant::now();

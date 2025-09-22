@@ -37,6 +37,7 @@ where
         k_value: usize,
         l_value: u32,
         indices: &mut [u32],
+        distances: &mut [f32],
         filter_mask: Option<&dyn FilterIndex>,
         should_pre: bool,
     ) -> ANNResult<u32>;
@@ -185,7 +186,8 @@ mod dataset_test {
 
         // Test search functionality
         let mut indices = vec![0u32; 2];
-        let search_result = index.search(&vector1, 2, 50, &mut indices, None, false);
+        let mut distances = vec![0.0f32; 2];
+        let search_result = index.search(&vector1, 2, 50, &mut indices, &mut distances, None, false);
         assert!(
             search_result.is_ok(),
             "Search should succeed after build_from_memory"
@@ -238,6 +240,7 @@ mod dataset_test {
                 _k_value: usize,
                 _l_value: u32,
                 _indices: &mut [u32],
+                _distances: &mut [f32],
                 _filter_mask: Option<&dyn FilterIndex>,
                 _should_pre: bool,
             ) -> crate::common::ANNResult<u32> {
@@ -314,6 +317,7 @@ mod dataset_test {
                 _k_value: usize,
                 _l_value: u32,
                 _indices: &mut [u32],
+                _distances: &mut [f32],
                 _filter_mask: Option<&dyn FilterIndex>,
                 _should_pre: bool,
             ) -> crate::common::ANNResult<u32> {
