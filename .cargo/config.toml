@@ -1,2 +1,2 @@
 [build]
-rustflags = ["-Ctarget-feature=+avx2", "-lopenblas"]
+rustflags = ["-lopenblas"]
