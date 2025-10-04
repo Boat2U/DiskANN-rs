@@ -9,8 +9,11 @@ use crate::Half;
 // ==================== Scalar Implementation (Universal Fallback) ====================
 
 /// Calculate L2 squared distance using scalar operations (fallback for non-AVX2)
+///
+/// This function is exposed as `pub(crate)` to allow direct testing of the scalar
+/// implementation independently of runtime dispatch logic.
 #[inline]
-fn distance_l2_scalar_f32<const N: usize>(a: &[f32; N], b: &[f32; N]) -> f32 {
+pub(crate) fn distance_l2_scalar_f32<const N: usize>(a: &[f32; N], b: &[f32; N]) -> f32 {
     let mut sum = 0.0f32;
     for i in 0..N {
         let diff = a[i] - b[i];
@@ -20,8 +23,11 @@ fn distance_l2_scalar_f32<const N: usize>(a: &[f32; N], b: &[f32; N]) -> f32 {
 }
 
 /// Calculate L2 squared distance for Half using scalar operations
+///
+/// This function is exposed as `pub(crate)` to allow direct testing of the scalar
+/// implementation independently of runtime dispatch logic.
 #[inline]
-fn distance_l2_scalar_f16<const N: usize>(a: &[Half; N], b: &[Half; N]) -> f32 {
+pub(crate) fn distance_l2_scalar_f16<const N: usize>(a: &[Half; N], b: &[Half; N]) -> f32 {
     let mut sum = 0.0f32;
     for i in 0..N {
         let a_f32: f32 = a[i].to_f32();
@@ -38,10 +44,16 @@ fn distance_l2_scalar_f16<const N: usize>(a: &[Half; N], b: &[Half; N]) -> f32 {
 use std::arch::x86_64::*;
 
 /// Calculate L2 squared distance using AVX2 vector arithmetic (f16)
+///
+/// # Safety
+/// This function requires AVX2 support. Caller must ensure CPU has AVX2 capability.
+///
+/// This function is exposed as `pub(crate)` to allow direct testing of the AVX2
+/// implementation independently of runtime dispatch logic.
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx2")]
 #[inline]
-unsafe fn distance_l2_avx2_f16<const N: usize>(a: &[Half; N], b: &[Half; N]) -> f32 {
+pub(crate) unsafe fn distance_l2_avx2_f16<const N: usize>(a: &[Half; N], b: &[Half; N]) -> f32 {
     debug_assert_eq!(N % 8, 0);
 
     // Make sure the addresses are 32-byte aligned
@@ -74,10 +86,13 @@ unsafe fn distance_l2_avx2_f16<const N: usize>(a: &[Half; N], b: &[Half; N]) -> 
 ///
 /// # Safety
 /// This function requires AVX2 support. Caller must ensure CPU has AVX2 capability.
+///
+/// This function is exposed as `pub(crate)` to allow direct testing of the AVX2
+/// implementation independently of runtime dispatch logic.
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "avx2")]
 #[inline]
-unsafe fn distance_l2_avx2_f32<const N: usize>(a: &[f32; N], b: &[f32; N]) -> f32 {
+pub(crate) unsafe fn distance_l2_avx2_f32<const N: usize>(a: &[f32; N], b: &[f32; N]) -> f32 {
     debug_assert_eq!(N % 8, 0);
 
     // Make sure the addresses are 32-byte aligned
@@ -148,5 +163,91 @@ pub fn distance_l2_vector_f32<const N: usize>(a: &[f32; N], b: &[f32; N]) -> f32
     #[cfg(not(target_arch = "x86_64"))]
     {
         distance_l2_scalar_f32(a, b)
+    }
+}
+
+#[cfg(test)]
+mod impl_tests {
+    use super::*;
+    use approx::assert_abs_diff_eq;
+
+    #[repr(C, align(32))]
+    struct F32Slice104([f32; 104]);
+
+    #[repr(C, align(32))]
+    struct F16Slice104([Half; 104]);
+
+    fn get_random_f32() -> (F32Slice104, F32Slice104) {
+        use rand::Rng;
+        let mut rng = rand::thread_rng();
+        let mut a = F32Slice104([0.0; 104]);
+        let mut b = F32Slice104([0.0; 104]);
+        for i in 0..104 {
+            a.0[i] = rng.gen_range(-1.0..1.0);
+            b.0[i] = rng.gen_range(-1.0..1.0);
+        }
+        (a, b)
+    }
+
+    fn get_random_f16() -> (F16Slice104, F16Slice104) {
+        let (a, b) = get_random_f32();
+        (
+            F16Slice104(a.0.map(Half::from_f32)),
+            F16Slice104(b.0.map(Half::from_f32)),
+        )
+    }
+
+    #[test]
+    #[cfg(target_arch = "x86_64")]
+    fn scalar_vs_avx2_consistency_f32() {
+        if !is_x86_feature_detected!("avx2") {
+            eprintln!("Skipping: CPU doesn't support AVX2");
+            return;
+        }
+
+        for _ in 0..10 {
+            let (a, b) = get_random_f32();
+            let scalar = distance_l2_scalar_f32(&a.0, &b.0);
+            let avx2 = unsafe { distance_l2_avx2_f32(&a.0, &b.0) };
+            assert_abs_diff_eq!(scalar, avx2, epsilon = 1e-4);
+        }
+    }
+
+    #[test]
+    #[cfg(target_arch = "x86_64")]
+    fn scalar_vs_avx2_consistency_f16() {
+        if !is_x86_feature_detected!("avx2") {
+            eprintln!("Skipping: CPU doesn't support AVX2");
+            return;
+        }
+
+        for _ in 0..10 {
+            let (a, b) = get_random_f16();
+            let scalar = distance_l2_scalar_f16(&a.0, &b.0);
+            let avx2 = unsafe { distance_l2_avx2_f16(&a.0, &b.0) };
+            assert_abs_diff_eq!(scalar, avx2, epsilon = 1e-2);
+        }
+    }
+
+    #[test]
+    fn runtime_dispatch_selects_correct_impl() {
+        let (a, b) = get_random_f32();
+        let dispatched = distance_l2_vector_f32(&a.0, &b.0);
+        let scalar = distance_l2_scalar_f32(&a.0, &b.0);
+
+        #[cfg(target_arch = "x86_64")]
+        {
+            if is_x86_feature_detected!("avx2") {
+                let avx2 = unsafe { distance_l2_avx2_f32(&a.0, &b.0) };
+                assert_abs_diff_eq!(dispatched, avx2, epsilon = 1e-6);
+            } else {
+                assert_abs_diff_eq!(dispatched, scalar, epsilon = 1e-6);
+            }
+        }
+
+        #[cfg(not(target_arch = "x86_64"))]
+        {
+            assert_abs_diff_eq!(dispatched, scalar, epsilon = 1e-6);
+        }
     }
 }
