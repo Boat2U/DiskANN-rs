@@ -29,7 +29,7 @@ fn search_memory_index<T>(
     num_threads: u32,
     recall_at: u32,
     print_all_recalls: bool,
-    l_vec: &Vec<u32>,
+    l_vec: &[u32],
     show_qps_per_thread: bool,
     fail_if_recall_below: f32,
 ) -> ANNResult<i32>
@@ -61,10 +61,7 @@ where
 
         calc_recall_flag = true;
     } else {
-        println!(
-            "Truthset file {} not found. Not computing recall",
-            truthset_file
-        );
+        println!("Truthset file {truthset_file} not found. Not computing recall");
     }
 
     let num_frozen_pts = search_index_utils::get_graph_num_frozen_points(index_path)?;
@@ -77,7 +74,7 @@ where
     .with_num_threads(num_threads)
     .build();
 
-    let (index_num_points, _) = load_metadata_from_file(&format!("{}.data", index_path))?;
+    let (index_num_points, _) = load_metadata_from_file(&format!("{index_path}.data"))?;
 
     let index_config = IndexConfiguration::new(
         metric,
@@ -95,7 +92,7 @@ where
 
     index.load(index_path, index_num_points)?;
 
-    println!("Using {} threads to search", num_threads);
+    println!("Using {num_threads} threads to search");
     let qps_title = if show_qps_per_thread {
         "QPS/thread"
     } else {
@@ -111,14 +108,14 @@ where
     let mut recalls_to_print: usize = 0;
     if calc_recall_flag {
         for curr_recall in first_recall..=recall_at {
-            let recall_str = format!("Recall@{}", curr_recall);
-            table_header_str.push_str(&format!("{:>12}", recall_str));
+            let recall_str = format!("Recall@{curr_recall}");
+            table_header_str.push_str(&format!("{recall_str:>12}"));
             recalls_to_print = (recall_at + 1 - first_recall) as usize;
             table_width += recalls_to_print * 12;
         }
     }
 
-    println!("{}", table_header_str);
+    println!("{table_header_str}");
     println!("{}", "=".repeat(table_width));
 
     let mut query_result_ids: Vec<Vec<u32>> =
@@ -133,10 +130,7 @@ where
         let l_value = l_vec[test_id];
 
         if l_value < recall_at {
-            println!(
-                "Ignoring search with L:{} since it's smaller than K:{}",
-                l_value, recall_at
-            );
+            println!("Ignoring search with L:{l_value} since it's smaller than K:{recall_at}");
             continue;
         }
 
@@ -151,7 +145,15 @@ where
             let query_start = Instant::now();
             let mut query_distances = vec![0.0f32; query_result.len()];
             *cmp = index
-                .search(query_chunk, recall_at as usize, l_value, query_result, &mut query_distances, None, false)
+                .search(
+                    query_chunk,
+                    recall_at as usize,
+                    l_value,
+                    query_result,
+                    &mut query_distances,
+                    None,
+                    false,
+                )
                 .unwrap();
 
             let query_end = Instant::now();
@@ -195,23 +197,22 @@ where
         );
 
         for recall in recalls.iter() {
-            stat_str.push_str(&format!("{: >12.2}", recall));
+            stat_str.push_str(&format!("{recall: >12.2}"));
             best_recall = f32::max(best_recall, *recall);
         }
 
-        println!("{}", stat_str);
+        println!("{stat_str}");
     }
 
     println!("Done searching. Now saving results");
     for (test_id, l_value) in l_vec.iter().enumerate() {
         if *l_value < recall_at {
             println!(
-                "Ignoring all search with L: {} since it's smaller than K: {}",
-                l_value, recall_at
+                "Ignoring all search with L: {l_value} since it's smaller than K: {recall_at}"
             );
         }
 
-        let cur_result_path = format!("{}_{}_idx_uint32.bin", result_path_prefix, l_value);
+        let cur_result_path = format!("{result_path_prefix}_{l_value}_idx_uint32.bin");
         save_bin_u32(
             &cur_result_path,
             query_result_ids[test_id].as_slice(),
@@ -248,7 +249,7 @@ fn main() -> ANNResult<()> {
         let mut iter = args.iter().skip(1).peekable();
         while let Some(arg) = iter.next() {
             let ann_error =
-                || ANNError::log_index_config_error(String::from(arg), format!("Missing {}", arg));
+                || ANNError::log_index_config_error(String::from(arg), format!("Missing {arg}"));
             match arg.as_str() {
                 "--help" | "-h" => {
                     print_help();
@@ -261,7 +262,7 @@ fn main() -> ANNResult<()> {
                     metric = Some(iter.next().ok_or_else(ann_error)?.parse().map_err(|err| {
                         ANNError::log_index_config_error(
                             String::from(arg),
-                            format!("ParseError: {}", err),
+                            format!("ParseError: {err}"),
                         )
                     })?);
                 }
@@ -282,7 +283,7 @@ fn main() -> ANNResult<()> {
                         Some(iter.next().ok_or_else(ann_error)?.parse().map_err(|err| {
                             ANNError::log_index_config_error(
                                 String::from(arg),
-                                format!("ParseError: {}", err),
+                                format!("ParseError: {err}"),
                             )
                         })?);
                 }
@@ -294,7 +295,7 @@ fn main() -> ANNResult<()> {
                         l_vec.push(iter.next().ok_or_else(ann_error)?.parse().map_err(|err| {
                             ANNError::log_index_config_error(
                                 String::from(arg),
-                                format!("ParseError: {}", err),
+                                format!("ParseError: {err}"),
                             )
                         })?);
                     }
@@ -303,7 +304,7 @@ fn main() -> ANNResult<()> {
                     num_cpus = iter.next().ok_or_else(ann_error)?.parse().map_err(|err| {
                         ANNError::log_index_config_error(
                             String::from(arg),
-                            format!("ParseError: {}", err),
+                            format!("ParseError: {err}"),
                         )
                     })?;
                 }
@@ -315,14 +316,13 @@ fn main() -> ANNResult<()> {
                         iter.next().ok_or_else(ann_error)?.parse().map_err(|err| {
                             ANNError::log_index_config_error(
                                 String::from(arg),
-                                format!("ParseError: {}", err),
+                                format!("ParseError: {err}"),
                             )
                         })?;
                 }
                 _ => {
                     return Err(ANNError::log_index_error(format!(
-                        "Unknown argument: {}",
-                        arg
+                        "Unknown argument: {arg}"
                     )));
                 }
             }
@@ -401,8 +401,7 @@ fn main() -> ANNResult<()> {
             }
             _ => {
                 return Err(ANNError::log_index_error(format!(
-                    "Unknown data type: {}!",
-                    data_type
+                    "Unknown data type: {data_type}!"
                 )));
             }
         }

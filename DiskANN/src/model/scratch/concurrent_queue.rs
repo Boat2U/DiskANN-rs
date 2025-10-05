@@ -104,8 +104,7 @@ impl<T> ConcurrentQueue<T> {
             .wait_timeout(guard_lock, wait_time)
             .map_err(|err| {
                 ANNError::log_lock_poison_error(format!(
-                    "ConcurrentQueue Lock is poisoned, err={}",
-                    err
+                    "ConcurrentQueue Lock is poisoned, err={err}"
                 ))
             })?;
         Ok(())
@@ -114,7 +113,7 @@ impl<T> ConcurrentQueue<T> {
 
 fn lock<T>(mutex: &Mutex<T>) -> ANNResult<MutexGuard<T>> {
     let guard = mutex.lock().map_err(|err| {
-        ANNError::log_lock_poison_error(format!("ConcurrentQueue lock is poisoned, err={}", err))
+        ANNError::log_lock_poison_error(format!("ConcurrentQueue lock is poisoned, err={err}"))
     })?;
     Ok(guard)
 }

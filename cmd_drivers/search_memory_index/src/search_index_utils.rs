@@ -79,6 +79,7 @@ pub(crate) fn get_graph_num_frozen_points(graph_file: &str) -> ANNResult<usize> 
 }
 
 #[inline]
+#[allow(clippy::type_complexity)]
 pub(crate) fn load_truthset(
     bin_file: &str,
 ) -> ANNResult<(Vec<u32>, Option<Vec<f32>>, usize, usize)> {
@@ -104,10 +105,7 @@ pub(crate) fn load_truthset(
         // expected_file_size_just_ids => 2,
         x if x == expected_file_size_with_dists => 1,
         _ => return Err(ANNError::log_index_error(format!("Error. File size mismatch. File should have bin format, with npts followed by ngt 
-                                                        followed by npts*ngt ids and optionally followed by npts*ngt distance values; actual size: {}, expected: {} or {}",
-                                                        actual_file_size,
-                                                        expected_file_size_with_dists,
-                                                        expected_file_size_just_ids)))
+                                                        followed by npts*ngt ids and optionally followed by npts*ngt distance values; actual size: {actual_file_size}, expected: {expected_file_size_with_dists} or {expected_file_size_just_ids}")))
     };
 
     let mut ids: Vec<u32> = vec![0; npts * dim];
@@ -151,9 +149,8 @@ pub(crate) fn load_aligned_bin<T: Default + Copy + Sized + Pod>(
 
     if file_size != expected_actual_file_size {
         return Err(ANNError::log_index_error(format!(
-            "ERROR: File size mismatch. Actual size is {} while expected size is {} 
-        npts = {}, #dims = {}, aligned_dim = {}",
-            file_size, expected_actual_file_size, npts, dim, rounded_dim
+            "ERROR: File size mismatch. Actual size is {file_size} while expected size is {expected_actual_file_size} 
+        npts = {npts}, #dims = {dim}, aligned_dim = {rounded_dim}"
         )));
     }
 
@@ -167,8 +164,7 @@ pub(crate) fn load_aligned_bin<T: Default + Copy + Sized + Pod>(
     );
     if !is_aligned(alloc_size * t_size, alignment) {
         return Err(ANNError::log_index_error(format!(
-            "Requested memory size is not a multiple of {}. Can not be allocated.",
-            alignment
+            "Requested memory size is not a multiple of {alignment}. Can not be allocated."
         )));
     }
 

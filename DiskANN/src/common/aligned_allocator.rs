@@ -43,7 +43,7 @@ impl<T> AlignedBoxWithSlice<T> {
             .ok_or_else(|| ANNError::log_index_error("Allocation size overflow".to_string()))?;
 
         let layout = Layout::from_size_align(allocsize, alignment)
-            .map_err(|e| ANNError::log_index_error(format!("Invalid layout: {}", e)))?;
+            .map_err(|e| ANNError::log_index_error(format!("Invalid layout: {e}")))?;
 
         let val = unsafe {
             let mem = std::alloc::alloc_zeroed(layout);
@@ -167,7 +167,7 @@ mod tests {
     fn create_alignedvec_works_32() {
         (0..100).for_each(|_| {
             let size = 1_000_000;
-            println!("Attempting {}", size);
+            println!("Attempting {size}");
             let data = AlignedBoxWithSlice::<f32>::new(size, 32).unwrap();
             assert_eq!(data.len(), size, "Capacity should match");
 
@@ -190,7 +190,7 @@ mod tests {
         (0..100).for_each(|_| {
             let n = rng.random::<u8>();
             let size = usize::from(n) + 1;
-            println!("Attempting {}", size);
+            println!("Attempting {size}");
             let data = AlignedBoxWithSlice::<u8>::new(size, 256).unwrap();
             assert_eq!(data.len(), size, "Capacity should match");
 
@@ -285,8 +285,7 @@ mod tests {
         let mut data = AlignedBoxWithSlice::<f32>::new(size, 32).unwrap();
         let result = data.split_into_nonoverlapping_mut_slices(range.clone(), slice_len);
         let expected_err_str = format!(
-            "IndexError: Cannot split range ({:?}) of AlignedBoxWithSlice (len: {}) into nonoverlapping mutable slices with length {}",
-            range, size, slice_len,
+            "IndexError: Cannot split range ({range:?}) of AlignedBoxWithSlice (len: {size}) into nonoverlapping mutable slices with length {slice_len}",
         );
         assert!(result.is_err_and(|e| e.to_string() == expected_err_str));
     }

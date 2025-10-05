@@ -133,10 +133,7 @@ fn run_lloyds(
         )?;
 
         if (i != 0 && (old_residual - residual) / residual < 0.00001) || (residual < f32::EPSILON) {
-            println!(
-                "Residuals unchanged: {} becomes {}. Early termination.",
-                old_residual, residual
-            );
+            println!("Residuals unchanged: {old_residual} becomes {residual}. Early termination.");
             break;
         }
     }
@@ -186,8 +183,7 @@ fn k_meanspp_selecting_pivots(
 ) -> Result<(), ANNError> {
     if num_points > (1 << 23) {
         println!(
-            "ERROR: n_pts {} currently not supported for k-means++, maximum is 8388608. Falling back to random pivot selection.",
-            num_points
+            "ERROR: n_pts {num_points} currently not supported for k-means++, maximum is 8388608. Falling back to random pivot selection."
         );
         selecting_pivots(data, num_points, dim, pivot_data, num_centers)?;
         return Ok(());

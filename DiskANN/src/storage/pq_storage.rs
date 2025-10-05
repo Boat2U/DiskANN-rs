@@ -224,7 +224,7 @@ impl PQStorage {
 
         let mut generator = rand::rng();
         let distribution = Uniform::new(0.0, 1.0).map_err(|e| {
-            ANNError::log_pq_error(format!("Failed to create Uniform distribution: {}", e))
+            ANNError::log_pq_error(format!("Failed to create Uniform distribution: {e}"))
         })?;
 
         for _ in 0..npts {

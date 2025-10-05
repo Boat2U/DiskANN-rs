@@ -30,13 +30,10 @@ impl CachedWriter {
             .open(Path::new(filename))?;
 
         if cache_size == 0 {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "Cache size must be greater than 0",
-            ));
+            return Err(std::io::Error::other("Cache size must be greater than 0"));
         }
 
-        println!("Opened: {}, cache_size: {}", filename, cache_size);
+        println!("Opened: {filename}, cache_size: {cache_size}");
         Ok(Self {
             writer,
             cache_size,

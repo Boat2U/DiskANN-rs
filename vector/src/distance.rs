@@ -17,7 +17,7 @@ impl<const N: usize> FullPrecisionDistance<f32, N> for [f32; N] {
     fn distance_compare(a: &[f32; N], b: &[f32; N], metric: Metric) -> f32 {
         match metric {
             Metric::L2 => distance_l2_vector_f32::<N>(a, b),
-            _ => panic!("Not supported Metric type {:?}", metric),
+            _ => panic!("Not supported Metric type {metric:?}"),
         }
     }
 }
@@ -28,7 +28,7 @@ impl<const N: usize> FullPrecisionDistance<Half, N> for [Half; N] {
     fn distance_compare(a: &[Half; N], b: &[Half; N], metric: Metric) -> f32 {
         match metric {
             Metric::L2 => distance_l2_vector_f16::<N>(a, b),
-            _ => panic!("Not supported Metric type {:?}", metric),
+            _ => panic!("Not supported Metric type {metric:?}"),
         }
     }
 }

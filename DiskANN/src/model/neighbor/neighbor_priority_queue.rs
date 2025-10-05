@@ -169,7 +169,7 @@ mod neighbor_priority_queue_test {
         assert_eq!(queue[0].id, 2); // node id in queue should be [2,3,1]
         assert_eq!(queue[1].id, 3);
         assert_eq!(queue[2].id, 1);
-        println!("{:?}", queue);
+        println!("{queue:?}");
     }
 
     #[test]

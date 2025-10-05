@@ -149,10 +149,7 @@ where
             num_pq_chunks
         };
 
-        println!(
-            "Compressing {}-dimensional data into {} bytes per vector.",
-            dim, num_pq_chunks
-        );
+        println!("Compressing {dim}-dimensional data into {num_pq_chunks} bytes per vector.");
 
         // TODO: Decouple PQ from file access
         generate_quantized_data::<T>(

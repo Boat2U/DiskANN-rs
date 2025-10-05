@@ -115,7 +115,7 @@ fn main() -> ANNResult<()> {
             Ok(())
         }
         Err(err) => {
-            eprintln!("Error: {:?}", err);
+            eprintln!("Error: {err:?}");
             Err(err)
         }
     }

@@ -90,7 +90,7 @@ impl<T> DiskIndexStorage<T> {
 
         // Create cached reader + writer
         let actual_file_size = get_file_size(mem_index_file.as_str())?;
-        println!("Vamana index file size={}", actual_file_size);
+        println!("Vamana index file size={actual_file_size}");
 
         let mut vamana_reader = File::open(mem_index_file)?;
         let mut diskann_writer = CachedWriter::new(disk_layout_file.as_str(), write_blk_size)?;
@@ -98,8 +98,7 @@ impl<T> DiskIndexStorage<T> {
         let index_file_size = vamana_reader.read_u64::<LittleEndian>()?;
         if index_file_size != actual_file_size {
             println!(
-                "Vamana Index file size does not match expected size per meta-data. file size from file: {}, actual file size: {}",
-                index_file_size, actual_file_size
+                "Vamana Index file size does not match expected size per meta-data. file size from file: {index_file_size}, actual file size: {actual_file_size}"
             );
         }
 
@@ -116,9 +115,9 @@ impl<T> DiskIndexStorage<T> {
             + (dims * (mem::size_of::<T>() as u64));
         let num_nodes_per_sector = (SECTOR_LEN as u64) / max_node_len;
 
-        println!("medoid: {}B", medoid);
-        println!("max_node_len: {}B", max_node_len);
-        println!("num_nodes_per_sector: {}B", num_nodes_per_sector);
+        println!("medoid: {medoid}B");
+        println!("max_node_len: {max_node_len}B");
+        println!("num_nodes_per_sector: {num_nodes_per_sector}B");
 
         // SECTOR_LEN buffer for each sector
         let mut sector_buf = vec![0u8; SECTOR_LEN];
@@ -153,7 +152,7 @@ impl<T> DiskIndexStorage<T> {
 
         for sector in 0..num_sectors {
             if sector % 100_000 == 0 {
-                println!("Sector #{} written", sector);
+                println!("Sector #{sector} written");
             }
             sector_buf.fill(0);
 
@@ -238,8 +237,7 @@ impl<T> DiskIndexStorage<T> {
         let file_offset_data = convert_types_u64_usize(&data, offset_num, offset_dim);
         if offset_num != 4 {
             let error_message = format!(
-                "Error reading pq_pivots file {}. Offsets don't contain correct metadata, # offsets = {}, but expecting 4.",
-                pq_pivots_path, offset_num
+                "Error reading pq_pivots file {pq_pivots_path}. Offsets don't contain correct metadata, # offsets = {offset_num}, but expecting 4."
             );
             return Err(ANNError::log_pq_error(error_message));
         }
@@ -248,8 +246,7 @@ impl<T> DiskIndexStorage<T> {
         let pq_table = data.to_vec();
         if pivot_num != NUM_PQ_CENTROIDS {
             let error_message = format!(
-                "Error reading pq_pivots file {}. file_num_centers = {}, but expecting {} centers.",
-                pq_pivots_path, pivot_num, NUM_PQ_CENTROIDS
+                "Error reading pq_pivots file {pq_pivots_path}. file_num_centers = {pivot_num}, but expecting {NUM_PQ_CENTROIDS} centers."
             );
             return Err(ANNError::log_pq_error(error_message));
         }
@@ -258,8 +255,7 @@ impl<T> DiskIndexStorage<T> {
         let centroids = data.to_vec();
         if centroid_dim != dim || nc != 1 {
             let error_message = format!(
-                "Error reading pq_pivots file {}. file_dim = {}, file_cols = {} but expecting {} entries in 1 dimension.",
-                pq_pivots_path, centroid_dim, nc, dim
+                "Error reading pq_pivots file {pq_pivots_path}. file_dim = {centroid_dim}, file_cols = {nc} but expecting {dim} entries in 1 dimension."
             );
             return Err(ANNError::log_pq_error(error_message));
         }

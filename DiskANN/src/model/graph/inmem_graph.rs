@@ -52,8 +52,7 @@ impl InMemoryGraph {
     ) -> Result<RwLockReadGuard<VertexAndNeighbors>, ANNError> {
         self.final_graph[vertex_id as usize].read().map_err(|err| {
             ANNError::log_lock_poison_error(format!(
-                "PoisonError: Lock poisoned when reading final_graph for vertex_id {}, err={}",
-                vertex_id, err
+                "PoisonError: Lock poisoned when reading final_graph for vertex_id {vertex_id}, err={err}"
             ))
         })
     }
@@ -65,8 +64,7 @@ impl InMemoryGraph {
     ) -> Result<RwLockWriteGuard<VertexAndNeighbors>, ANNError> {
         self.final_graph[vertex_id as usize].write().map_err(|err| {
             ANNError::log_lock_poison_error(format!(
-                "PoisonError: Lock poisoned when writing final_graph for vertex_id {}, err={}",
-                vertex_id, err
+                "PoisonError: Lock poisoned when writing final_graph for vertex_id {vertex_id}, err={err}"
             ))
         })
     }

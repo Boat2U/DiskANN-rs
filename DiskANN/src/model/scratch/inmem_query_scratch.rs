@@ -93,8 +93,7 @@ impl<T: Default + Copy, const N: usize> InMemQueryScratch<T, N> {
 
         if search_candidate_size == 0 || indexing_candidate_size == 0 || max_degree == 0 || N == 0 {
             return Err(ANNError::log_index_error(format!(
-                "In InMemQueryScratch, one of search_candidate_size = {}, indexing_candidate_size = {}, dim = {} or max_degree = {} is zero.",
-                search_candidate_size, indexing_candidate_size, N, max_degree
+                "In InMemQueryScratch, one of search_candidate_size = {search_candidate_size}, indexing_candidate_size = {indexing_candidate_size}, dim = {N} or max_degree = {max_degree} is zero."
             )));
         }
 

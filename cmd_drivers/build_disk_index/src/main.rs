@@ -155,7 +155,7 @@ fn main() -> ANNResult<()> {
                     .map_err(|err| {
                         ANNError::log_index_config_error(
                             "max_degree".to_string(),
-                            format!("ParseIntError: {}", err),
+                            format!("ParseIntError: {err}"),
                         )
                     })?;
             }
@@ -172,7 +172,7 @@ fn main() -> ANNResult<()> {
                     .map_err(|err| {
                         ANNError::log_index_config_error(
                             "Lbuild".to_string(),
-                            format!("ParseIntError: {}", err),
+                            format!("ParseIntError: {err}"),
                         )
                     })?;
             }
@@ -189,7 +189,7 @@ fn main() -> ANNResult<()> {
                     .map_err(|err| {
                         ANNError::log_index_config_error(
                             "num_threads".to_string(),
-                            format!("ParseIntError: {}", err),
+                            format!("ParseIntError: {err}"),
                         )
                     })?;
             }
@@ -206,7 +206,7 @@ fn main() -> ANNResult<()> {
                     .map_err(|err| {
                         ANNError::log_index_config_error(
                             "build_PQ_bytes".to_string(),
-                            format!("ParseIntError: {}", err),
+                            format!("ParseIntError: {err}"),
                         )
                     })?;
             }
@@ -223,7 +223,7 @@ fn main() -> ANNResult<()> {
                     .map_err(|err| {
                         ANNError::log_index_config_error(
                             "use_opq".to_string(),
-                            format!("ParseBoolError: {}", err),
+                            format!("ParseBoolError: {err}"),
                         )
                     })?;
             }
@@ -240,7 +240,7 @@ fn main() -> ANNResult<()> {
                     .map_err(|err| {
                         ANNError::log_index_config_error(
                             "search_DRAM_budget".to_string(),
-                            format!("ParseBoolError: {}", err),
+                            format!("ParseBoolError: {err}"),
                         )
                     })?;
             }
@@ -257,14 +257,14 @@ fn main() -> ANNResult<()> {
                     .map_err(|err| {
                         ANNError::log_index_config_error(
                             "build_DRAM_budget".to_string(),
-                            format!("ParseBoolError: {}", err),
+                            format!("ParseBoolError: {err}"),
                         )
                     })?;
             }
             _ => {
                 return Err(ANNError::log_index_config_error(
                     String::from(""),
-                    format!("Unknown argument: {}", arg),
+                    format!("Unknown argument: {arg}"),
                 ));
             }
         }
@@ -286,8 +286,7 @@ fn main() -> ANNResult<()> {
         .map_err(|err| ANNError::log_index_config_error("dist_fn".to_string(), err.to_string()))?;
 
     println!(
-        "Starting index build with R: {}  Lbuild: {}  alpha: {}  #threads: {} search_DRAM_budget: {} build_DRAM_budget: {}",
-        r, l, ALPHA, num_threads, search_ram_limit_gb, index_build_ram_limit_gb
+        "Starting index build with R: {r}  Lbuild: {l}  alpha: {ALPHA}  #threads: {num_threads} search_DRAM_budget: {search_ram_limit_gb} build_DRAM_budget: {index_build_ram_limit_gb}"
     );
 
     let err = match data_type.as_str() {
@@ -354,7 +353,7 @@ fn main() -> ANNResult<()> {
             Ok(())
         }
         Err(err) => {
-            eprintln!("Error: {:?}", err);
+            eprintln!("Error: {err:?}");
             Err(err)
         }
     }

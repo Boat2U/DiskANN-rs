@@ -4,13 +4,10 @@
 
 //! Aligned allocator
 
-extern crate cblas;
-
 use std::cmp::{Ordering, min};
 use std::collections::BinaryHeap;
 use std::sync::{Arc, Mutex};
 
-use cblas::{Layout, Transpose, sgemm, snrm2};
 use rayon::prelude::*;
 
 use crate::common::{ANNError, ANNResult};
@@ -62,8 +59,8 @@ pub fn compute_vecs_l2sq(vecs_l2sq: &mut [f32], data: &[f32], num_points: usize,
         .enumerate()
         .for_each(|(n_iter, vec_l2sq)| {
             let slice = &data[n_iter * dim..(n_iter + 1) * dim];
-            let norm = unsafe { snrm2(dim as i32, slice, 1) };
-            *vec_l2sq = norm * norm;
+            let norm_sq: f32 = slice.iter().map(|&x| x * x).sum();
+            *vec_l2sq = norm_sq;
         });
 }
 
@@ -90,68 +87,49 @@ pub fn compute_closest_centers_in_block(
 ) -> ANNResult<()> {
     if k > num_centers {
         return Err(ANNError::log_index_error(format!(
-            "ERROR: k ({}) > num_centers({})",
-            k, num_centers
+            "ERROR: k ({k}) > num_centers({num_centers})"
         )));
     }
 
-    let ones_a: Vec<f32> = vec![1.0; num_centers];
-    let ones_b: Vec<f32> = vec![1.0; num_points];
+    dist_matrix
+        .par_chunks_mut(num_centers)
+        .zip(docs_l2sq.par_iter())
+        .for_each(|(row, &doc_l2)| {
+            row.fill(doc_l2);
+        });
 
-    unsafe {
-        sgemm(
-            Layout::RowMajor,
-            Transpose::None,
-            Transpose::Ordinary,
-            num_points as i32,
-            num_centers as i32,
-            1,
-            1.0,
-            docs_l2sq,
-            1,
-            &ones_a,
-            1,
-            0.0,
-            dist_matrix,
-            num_centers as i32,
-        );
-    }
+    dist_matrix.par_chunks_mut(num_centers).for_each(|row| {
+        for (col_idx, value) in row.iter_mut().enumerate() {
+            *value += centers_l2sq[col_idx];
+        }
+    });
 
+    // Compute: dist_matrix += -2.0 * data * centers^T
+    // data: num_points × dim (row-major)
+    // centers: num_centers × dim (row-major)
+    // result: num_points × num_centers (row-major)
+    //
+    // sgemm computes: C = alpha * A * B + beta * C
+    // We want: C = -2.0 * data * centers^T + 1.0 * C
+    // A = data (num_points × dim, row-major)
+    // B = centers^T (dim × num_centers, transpose of centers)
+    // C = dist_matrix (num_points × num_centers, row-major)
     unsafe {
-        sgemm(
-            Layout::RowMajor,
-            Transpose::None,
-            Transpose::Ordinary,
-            num_points as i32,
-            num_centers as i32,
-            1,
-            1.0,
-            &ones_b,
-            1,
-            centers_l2sq,
-            1,
-            1.0,
-            dist_matrix,
-            num_centers as i32,
-        );
-    }
-
-    unsafe {
-        sgemm(
-            Layout::RowMajor,
-            Transpose::None,
-            Transpose::Ordinary,
-            num_points as i32,
-            num_centers as i32,
-            dim as i32,
-            -2.0,
-            data,
-            dim as i32,
-            centers,
-            dim as i32,
-            1.0,
-            dist_matrix,
-            num_centers as i32,
+        matrixmultiply::sgemm(
+            num_points,               // m: rows of A and C
+            dim,                      // k: cols of A, rows of B
+            num_centers,              // n: cols of B and C
+            -2.0,                     // alpha
+            data.as_ptr(),            // A: num_points × dim row-major
+            dim as isize,             // rsa: row stride of A (next row is +dim)
+            1,                        // csa: col stride of A (next col is +1)
+            centers.as_ptr(),         // B: centers num_centers × dim, use as dim × num_centers
+            1,                        // rsb: to use centers^T, swap strides: row stride = 1
+            dim as isize,             // csb: col stride = dim (to get transpose effect)
+            1.0,                      // beta: accumulate into existing dist_matrix
+            dist_matrix.as_mut_ptr(), // C: num_points × num_centers row-major
+            num_centers as isize,     // rsc: row stride of C (next row is +num_centers)
+            1,                        // csc: col stride of C (next col is +1)
         );
     }
 
@@ -229,8 +207,7 @@ pub fn compute_closest_centers(
 ) -> ANNResult<()> {
     if k > num_centers {
         return Err(ANNError::log_index_error(format!(
-            "ERROR: k ({}) > num_centers({})",
-            k, num_centers
+            "ERROR: k ({k}) > num_centers({num_centers})"
         )));
     }
 
@@ -287,8 +264,7 @@ pub fn compute_closest_centers(
                     let this_center_id = closest_centers[j] as usize;
                     let mut guard = inverted_index_arc.lock().map_err(|err| {
                         ANNError::log_index_error(format!(
-                            "PoisonError: Lock poisoned when acquiring inverted_index_arc, err={}",
-                            err
+                            "PoisonError: Lock poisoned when acquiring inverted_index_arc, err={err}"
                         ))
                     })?;
                     guard[this_center_id].push(j);
@@ -315,8 +291,7 @@ pub fn process_residuals(
     to_subtract: bool,
 ) {
     println!(
-        "Processing residuals of {} points in {} dimensions using {} centers",
-        num_points, dim, num_centers
+        "Processing residuals of {num_points} points in {dim} dimensions using {num_centers} centers"
     );
 
     data_load

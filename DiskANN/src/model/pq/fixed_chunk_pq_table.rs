@@ -433,8 +433,7 @@ mod fixed_chunk_pq_table_test {
         let file_offset_data = convert_types_u64_usize(&data, offset_num, offset_dim);
         if offset_num != 4 {
             let error_message = format!(
-                "Error reading pq_pivots file {}. Offsets don't contain correct metadata, # offsets = {}, but expecting 4.",
-                pq_pivots_path, offset_num
+                "Error reading pq_pivots file {pq_pivots_path}. Offsets don't contain correct metadata, # offsets = {offset_num}, but expecting 4."
             );
             return Err(ANNError::log_pq_error(error_message));
         }
@@ -443,8 +442,7 @@ mod fixed_chunk_pq_table_test {
         let pq_table = data.to_vec();
         if pq_center_num != NUM_PQ_CENTROIDS {
             let error_message = format!(
-                "Error reading pq_pivots file {}. file_num_centers = {}, but expecting {} centers.",
-                pq_pivots_path, pq_center_num, NUM_PQ_CENTROIDS
+                "Error reading pq_pivots file {pq_pivots_path}. file_num_centers = {pq_center_num}, but expecting {NUM_PQ_CENTROIDS} centers."
             );
             return Err(ANNError::log_pq_error(error_message));
         }
@@ -453,8 +451,7 @@ mod fixed_chunk_pq_table_test {
         let centroids = data.to_vec();
         if centroid_dim != dim || nc != 1 {
             let error_message = format!(
-                "Error reading pq_pivots file {}. file_dim = {}, file_cols = {} but expecting {} entries in 1 dimension.",
-                pq_pivots_path, centroid_dim, nc, dim
+                "Error reading pq_pivots file {pq_pivots_path}. file_dim = {centroid_dim}, file_cols = {nc} but expecting {dim} entries in 1 dimension."
             );
             return Err(ANNError::log_pq_error(error_message));
         }

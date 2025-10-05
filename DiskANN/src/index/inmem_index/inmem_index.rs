@@ -243,6 +243,7 @@ where
         Ok(pruned_list)
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn search(
         &self,
         query: &Vertex<T, N>,
@@ -255,8 +256,7 @@ where
     ) -> ANNResult<u32> {
         if k_value > l_value as usize {
             return Err(ANNError::log_index_error(format!(
-                "Set L: {} to a value of at least K: {}",
-                l_value, k_value
+                "Set L: {l_value} to a value of at least K: {k_value}"
             )));
         }
 
@@ -314,10 +314,7 @@ where
         }
 
         if pos < k_value {
-            eprintln!(
-                "Found fewer than K elements for query! Found: {} but K: {}",
-                pos, k_value
-            );
+            eprintln!("Found fewer than K elements for query! Found: {pos} but K: {k_value}");
         }
 
         Ok(cmp)
@@ -486,8 +483,7 @@ where
             Ok(guard) => guard,
             Err(_) => {
                 return Err(ANNError::log_index_error(format!(
-                    "Failed to acquire delete_set lock, cannot delete vertex {}",
-                    vertex_id_to_delete
+                    "Failed to acquire delete_set lock, cannot delete vertex {vertex_id_to_delete}"
                 )));
             }
         };
@@ -577,8 +573,7 @@ where
 
         if !file_exists(filename) {
             return Err(ANNError::log_index_error(format!(
-                "ERROR: Data file {} does not exist.",
-                filename
+                "ERROR: Data file {filename} does not exist."
             )));
         }
 
@@ -593,8 +588,7 @@ where
 
         if num_points_to_load > file_num_points {
             return Err(ANNError::log_index_error(format!(
-                "ERROR: Driver requests loading {} points and file has only {} points.",
-                num_points_to_load, file_num_points
+                "ERROR: Driver requests loading {num_points_to_load} points and file has only {file_num_points} points."
             )));
         }
 
@@ -616,7 +610,7 @@ where
 
         self.dataset.build_from_file(filename, num_points_to_load)?;
 
-        println!("Using only first {} from file.", num_points_to_load);
+        println!("Using only first {num_points_to_load} from file.");
 
         // TODO: tag_lock
 
@@ -630,8 +624,7 @@ where
         // fresh-diskANN
         if !file_exists(filename) {
             return Err(ANNError::log_index_error(format!(
-                "ERROR: Data file {} does not exist.",
-                filename
+                "ERROR: Data file {filename} does not exist."
             )));
         }
 
@@ -639,8 +632,7 @@ where
 
         if num_points_to_insert > file_num_points {
             return Err(ANNError::log_index_error(format!(
-                "ERROR: Driver requests loading {} points and file has only {} points.",
-                num_points_to_insert, file_num_points
+                "ERROR: Driver requests loading {num_points_to_insert} points and file has only {file_num_points} points."
             )));
         }
 
@@ -689,7 +681,7 @@ where
         self.num_active_pts += num_points_to_insert;
         self.configuration.max_points += num_points_to_insert;
 
-        println!("Inserting {} vectors from file.", num_points_to_insert);
+        println!("Inserting {num_points_to_insert} vectors from file.");
 
         // TODO: tag_lock
         let timer = Timer::new();
@@ -731,10 +723,10 @@ where
     fn load(&mut self, filename: &str, expected_num_points: usize) -> ANNResult<()> {
         self.num_active_pts = expected_num_points;
         self.dataset
-            .build_from_file(&format!("{}.data", filename), expected_num_points)?;
+            .build_from_file(&format!("{filename}.data"), expected_num_points)?;
 
         self.load_graph(filename, expected_num_points)?;
-        self.load_delete_list(&format!("{}.delete", filename))?;
+        self.load_delete_list(&format!("{filename}.delete"))?;
 
         if self.query_scratch_queue.size()? == 0 {
             self.initialize_query_scratch(
@@ -774,7 +766,7 @@ where
         vertex_ids_to_delete: Vec<u32>,
         num_points_to_delete: usize,
     ) -> ANNResult<()> {
-        println!("Deleting {} vectors from file.", num_points_to_delete);
+        println!("Deleting {num_points_to_delete} vectors from file.");
 
         let timer = Timer::new();
 
@@ -836,7 +828,7 @@ where
         self.dataset
             .build_from_memory(vectors, num_points, self.configuration.dim)?;
 
-        println!("Using {} vectors from memory.", num_points);
+        println!("Using {num_points} vectors from memory.");
 
         // TODO: tag_lock
 
@@ -905,7 +897,7 @@ where
         self.num_active_pts += num_points;
         self.configuration.max_points += num_points;
 
-        println!("Inserting {} vectors from memory.", num_points);
+        println!("Inserting {num_points} vectors from memory.");
 
         // TODO: tag_lock
         let timer = Timer::new();
@@ -944,8 +936,7 @@ where
         // Validate bounds
         if end > self.dataset.data.len() {
             return Err(ANNError::log_index_error(format!(
-                "Invalid vector id {}.",
-                vector_id
+                "Invalid vector id {vector_id}."
             )));
         }
 
@@ -1263,7 +1254,15 @@ mod index_test {
         let query_vertex = index.dataset.get_vertex(0).unwrap();
         let mut indices = vec![0u32; 3];
         let mut distances = vec![0.0f32; 3];
-        let search_result = index.search(&query_vertex, 3, 50, &mut indices, &mut distances, None, false);
+        let search_result = index.search(
+            &query_vertex,
+            3,
+            50,
+            &mut indices,
+            &mut distances,
+            None,
+            false,
+        );
         assert!(search_result.is_ok(), "Search should succeed");
 
         // The first result should be the query vector itself (index 0)
@@ -1334,7 +1333,15 @@ mod index_test {
 
             let k = 5.min(test_num_points);
             file_index
-                .search(&query_vertex, k, 50, &mut file_results, &mut file_distances, None, false)
+                .search(
+                    &query_vertex,
+                    k,
+                    50,
+                    &mut file_results,
+                    &mut file_distances,
+                    None,
+                    false,
+                )
                 .unwrap();
 
             // Get corresponding vertex from memory index for search
@@ -1427,7 +1434,15 @@ mod index_test {
         let query_vertex = index.dataset.get_vertex(5).unwrap(); // First inserted vector
         let mut indices = vec![0u32; 3];
         let mut distances = vec![0.0f32; 3];
-        let search_result = index.search(&query_vertex, 3, 50, &mut indices, &mut distances, None, false);
+        let search_result = index.search(
+            &query_vertex,
+            3,
+            50,
+            &mut indices,
+            &mut distances,
+            None,
+            false,
+        );
         assert!(search_result.is_ok(), "Search should find inserted vectors");
 
         // The inserted vector should be findable
@@ -1571,8 +1586,15 @@ mod index_test {
                     let mut indices = vec![0u32; 3];
                     let mut distances = vec![0.0f32; 3];
                     let query_vertex = index_clone.dataset.get_vertex(query_idx).unwrap();
-                    let result =
-                        index_clone.search(&query_vertex, 3, 50, &mut indices, &mut distances, None, false);
+                    let result = index_clone.search(
+                        &query_vertex,
+                        3,
+                        50,
+                        &mut indices,
+                        &mut distances,
+                        None,
+                        false,
+                    );
                     (result.is_ok(), indices)
                 })
             })
@@ -1635,7 +1657,15 @@ mod index_test {
         let mut distances = vec![0.0f32; 5];
 
         let start = Instant::now();
-        let search_result = index.search(&query_vertex, 5, 50, &mut indices, &mut distances, None, false);
+        let search_result = index.search(
+            &query_vertex,
+            5,
+            50,
+            &mut indices,
+            &mut distances,
+            None,
+            false,
+        );
         let search_time = start.elapsed();
 
         assert!(search_result.is_ok(), "Search should succeed");
@@ -1647,9 +1677,6 @@ mod index_test {
         );
         assert!(search_time.as_millis() < 100, "Search should be fast");
 
-        println!(
-            "Memory interface build time: {:?}, search time: {:?}",
-            build_time, search_time
-        );
+        println!("Memory interface build time: {build_time:?}, search time: {search_time:?}");
     }
 }

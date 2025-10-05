@@ -17,7 +17,7 @@ fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
 
     match args.len() {
-        3 | 4 | 5 | 6 => {}
+        3..=6 => {}
         _ => {
             print_usage();
             std::process::exit(1);
@@ -34,9 +34,9 @@ fn main() -> io::Result<()> {
     } else {
         100000
     };
-    println!("use_f16: {}", use_f16);
-    println!("save_as_float: {}", save_as_float);
-    println!("batch_size: {}", batch_size);
+    println!("use_f16: {use_f16}");
+    println!("save_as_float: {save_as_float}");
+    println!("batch_size: {batch_size}");
 
     // Open the input file for reading
     let mut input_file = BufReader::new(File::open(input_file_path)?);
@@ -46,6 +46,7 @@ fn main() -> io::Result<()> {
         OpenOptions::new()
             .write(true)
             .create(true)
+            .truncate(true)
             .open(output_file_path)?,
     );
 
@@ -151,12 +152,11 @@ fn main() -> io::Result<()> {
                 );
             }
             Err(ref e) if e.kind() == io::ErrorKind::UnexpectedEof => {
-                println!("Conversion completed! {} of times f16 wins | overflow count {}, {} of times bf16 wins | overflow count{}",
-                 num_f16_wins, f16_overflow, num_fb16_wins, bf16_overflow);
+                println!("Conversion completed! {num_f16_wins} of times f16 wins | overflow count {f16_overflow}, {num_fb16_wins} of times bf16 wins | overflow count{bf16_overflow}");
                 break;
             }
             Err(err) => {
-                println!("Error: {}", err);
+                println!("Error: {err}");
                 break;
             }
         };

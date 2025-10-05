@@ -56,8 +56,8 @@ pub fn gen_sample_data<T>(data_file: &str, output_file: &str, sampling_rate: f64
     let read_blk_size = 64 * 1024 * 1024;
     let mut reader = CachedReader::new(data_file, read_blk_size)?;
 
-    let sample_data_path = format!("{}_data.bin", output_file);
-    let sample_ids_path = format!("{}_ids.bin", output_file);
+    let sample_data_path = format!("{output_file}_data.bin");
+    let sample_ids_path = format!("{output_file}_ids.bin");
     let mut sample_data_writer = File::create(Path::new(&sample_data_path))?;
     let mut sample_id_writer = File::create(Path::new(&sample_ids_path))?;
 
@@ -89,10 +89,7 @@ pub fn gen_sample_data<T>(data_file: &str, output_file: &str, sampling_rate: f64
     sample_data_writer.write_all(&num_sampled_pts.to_le_bytes())?;
     sample_id_writer.seek(SeekFrom::Start(0))?;
     sample_id_writer.write_all(&num_sampled_pts.to_le_bytes())?;
-    println!(
-        "Wrote {} points to sample file: {}",
-        num_sampled_pts, sample_data_path
-    );
+    println!("Wrote {num_sampled_pts} points to sample file: {sample_data_path}");
 
     Ok(())
 }
@@ -123,8 +120,8 @@ mod partition_test {
         let sample_file_prefix = file_name.to_string() + "_sample";
         gen_sample_data::<f32>(file_name, sample_file_prefix.as_str(), 1f64).unwrap();
 
-        let sample_data_path = format!("{}_data.bin", sample_file_prefix);
-        let sample_ids_path = format!("{}_ids.bin", sample_file_prefix);
+        let sample_data_path = format!("{sample_file_prefix}_data.bin");
+        let sample_ids_path = format!("{sample_file_prefix}_ids.bin");
         assert!(file_exists(sample_data_path.as_str()));
         assert!(file_exists(sample_ids_path.as_str()));
 

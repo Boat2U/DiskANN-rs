@@ -30,8 +30,7 @@ impl<'a, T> AlignedRead<'a, T> {
         match val % DISK_IO_ALIGNMENT {
             0 => Ok(()),
             _ => Err(ANNError::log_disk_io_alignment_error(format!(
-                "The offset or length of AlignedRead request is not {} bytes aligned",
-                DISK_IO_ALIGNMENT
+                "The offset or length of AlignedRead request is not {DISK_IO_ALIGNMENT} bytes aligned"
             ))),
         }
     }

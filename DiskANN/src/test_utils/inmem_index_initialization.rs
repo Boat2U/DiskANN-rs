@@ -48,7 +48,7 @@ fn build_test_index(
     num_points_to_load: usize,
 ) {
     if !file_exists(filename) {
-        panic!("ERROR: Data file {} does not exist.", filename);
+        panic!("ERROR: Data file {filename} does not exist.");
     }
 
     let (file_num_points, file_dim) = load_metadata_from_file(filename).unwrap();
@@ -62,8 +62,7 @@ fn build_test_index(
 
     if num_points_to_load > file_num_points {
         panic!(
-            "ERROR: Driver requests loading {} points and file has only {} points.",
-            num_points_to_load, file_num_points
+            "ERROR: Driver requests loading {num_points_to_load} points and file has only {file_num_points} points."
         );
     }
 
@@ -79,7 +78,7 @@ fn build_test_index(
         .build_from_file(filename, num_points_to_load)
         .unwrap();
 
-    println!("Using only first {} from file.", num_points_to_load);
+    println!("Using only first {num_points_to_load} from file.");
 
     index.num_active_pts = num_points_to_load;
 }

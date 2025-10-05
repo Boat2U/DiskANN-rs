@@ -120,8 +120,7 @@ where
         let query_vertex = Vertex::<T, N>::try_from((&scratch.query[..], query.vertex_id()))
             .map_err(|err| {
                 ANNError::log_index_error(format!(
-                    "TryFromSliceError: failed to get Vertex for query, err={}",
-                    err
+                    "TryFromSliceError: failed to get Vertex for query, err={err}"
                 ))
             })?;
 
@@ -170,8 +169,7 @@ where
         let query_vertex = Vertex::<T, N>::try_from((&scratch.query[..], query.vertex_id()))
             .map_err(|err| {
                 ANNError::log_index_error(format!(
-                    "TryFromSliceError: failed to get Vertex for query, err={}",
-                    err
+                    "TryFromSliceError: failed to get Vertex for query, err={err}"
                 ))
             })?;
 
@@ -195,9 +193,7 @@ where
                 let current_vertex_id = *id;
                 debug_assert!(
                     (current_vertex_id as usize) < max_vertex_id,
-                    "current_vertex_id {} is out of valid range of points {}",
-                    current_vertex_id,
-                    max_vertex_id
+                    "current_vertex_id {current_vertex_id} is out of valid range of points {max_vertex_id}"
                 );
                 if current_vertex_id as usize >= max_vertex_id {
                     continue;

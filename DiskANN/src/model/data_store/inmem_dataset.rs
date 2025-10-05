@@ -58,10 +58,7 @@ where
 
     /// Build the dataset from file
     pub fn build_from_file(&mut self, filename: &str, num_points_to_load: usize) -> ANNResult<()> {
-        println!(
-            "Loading {} vectors from file {} into dataset...",
-            num_points_to_load, filename
-        );
+        println!("Loading {num_points_to_load} vectors from file {filename} into dataset...");
         self.num_active_pts = num_points_to_load;
 
         copy_aligned_data_from_file(filename, self.as_dto(), 0)?;
@@ -76,10 +73,7 @@ where
         filename: &str,
         num_points_to_append: usize,
     ) -> ANNResult<()> {
-        println!(
-            "Appending {} vectors from file {} into dataset...",
-            num_points_to_append, filename
-        );
+        println!("Appending {num_points_to_append} vectors from file {filename} into dataset...");
         if self.num_points + num_points_to_append > self.capacity {
             return Err(ANNError::log_index_error(format!(
                 "Cannot append {} points to dataset of capacity {}",
@@ -104,10 +98,7 @@ where
         num_points_to_load: usize,
         actual_dim: usize,
     ) -> ANNResult<()> {
-        println!(
-            "Loading {} vectors from memory into dataset...",
-            num_points_to_load
-        );
+        println!("Loading {num_points_to_load} vectors from memory into dataset...");
 
         if num_points_to_load > vectors.len() {
             return Err(ANNError::log_index_error(format!(
@@ -141,10 +132,7 @@ where
         num_points_to_append: usize,
         actual_dim: usize,
     ) -> ANNResult<()> {
-        println!(
-            "Appending {} vectors from memory into dataset...",
-            num_points_to_append
-        );
+        println!("Appending {num_points_to_append} vectors from memory into dataset...");
 
         if num_points_to_append > vectors.len() {
             return Err(ANNError::log_index_error(format!(
@@ -205,8 +193,7 @@ where
 
             if aligned_end > self.data.len() {
                 return Err(ANNError::log_index_error(format!(
-                    "Cannot copy vector {}: storage capacity exceeded",
-                    i
+                    "Cannot copy vector {i}: storage capacity exceeded"
                 )));
             }
 
@@ -231,13 +218,12 @@ where
 
         if end <= self.data.len() {
             let val = <&[T; N]>::try_from(&self.data[start..end]).map_err(|err| {
-                ANNError::log_index_error(format!("Failed to get vertex {}, err={}", id, err))
+                ANNError::log_index_error(format!("Failed to get vertex {id}, err={err}"))
             })?;
             Ok(Vertex::new(val, id))
         } else {
             Err(ANNError::log_index_error(format!(
-                "Invalid vertex id {}.",
-                id
+                "Invalid vertex id {id}."
             )))
         }
     }
@@ -365,7 +351,7 @@ mod dataset_test {
         let dataset = InmemDataset::<f32, DIM_128>::new(num_points, 1f32).unwrap();
 
         if dataset.get_vertex(invalid_id).is_ok() {
-            panic!("id ({}) should be out of range", invalid_id)
+            panic!("id ({invalid_id}) should be out of range")
         };
     }
 
@@ -468,8 +454,7 @@ mod dataset_test {
             assert_eq!(
                 memory_vertex.vector(),
                 file_vertex.vector(),
-                "Vertex {} should be identical between memory and file loading",
-                i
+                "Vertex {i} should be identical between memory and file loading"
             );
         }
     }

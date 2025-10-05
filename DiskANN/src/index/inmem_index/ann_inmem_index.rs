@@ -31,6 +31,7 @@ where
 
     /// Search the index for K nearest neighbors of query using given L value, for benchmarking
     /// purposes
+    #[allow(clippy::too_many_arguments)]
     fn search(
         &self,
         query: &[T],
@@ -187,7 +188,8 @@ mod dataset_test {
         // Test search functionality
         let mut indices = vec![0u32; 2];
         let mut distances = vec![0.0f32; 2];
-        let search_result = index.search(&vector1, 2, 50, &mut indices, &mut distances, None, false);
+        let search_result =
+            index.search(&vector1, 2, 50, &mut indices, &mut distances, None, false);
         assert!(
             search_result.is_ok(),
             "Search should succeed after build_from_memory"
@@ -378,7 +380,7 @@ mod dataset_test {
             );
 
             let result = create_inmem_index::<f32>(config);
-            assert!(result.is_ok(), "Should create index for dimension {}", dim);
+            assert!(result.is_ok(), "Should create index for dimension {dim}");
 
             // We can't easily test build_from_memory here due to const generic constraints
             // but we've verified the index can be created
@@ -415,7 +417,7 @@ mod dataset_test {
 
         match result {
             Err(error) => {
-                let error_msg = format!("{}", error);
+                let error_msg = format!("{error}");
                 assert!(
                     error_msg.contains("Invalid dimension"),
                     "Error should mention invalid dimension"

@@ -50,7 +50,7 @@ where
             }
         }
 
-        println!("Loading vamana graph {}...", filename);
+        println!("Loading vamana graph {filename}...");
 
         let expected_max_points = expected_num_points - file_frozen_pts;
 
@@ -84,8 +84,7 @@ where
 
             if num_nbrs == 0 {
                 return Err(ANNError::log_index_error(format!(
-                    "ERROR: Point found with no out-neighbors, point# {}",
-                    nodes_read
+                    "ERROR: Point found with no out-neighbors, point# {nodes_read}"
                 )));
             }
 

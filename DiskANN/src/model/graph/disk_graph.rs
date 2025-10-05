@@ -99,8 +99,7 @@ impl<'a> DiskGraph {
         Vertex::<'a, T, N>::try_from((aligned_dim_vector, self.nodes_to_fetch[node_index])).map_err(
             |err| {
                 ANNError::log_index_error(format!(
-                    "TryFromSliceError: failed to get Vertex for disk index node, err={}",
-                    err
+                    "TryFromSliceError: failed to get Vertex for disk index node, err={err}"
                 ))
             },
         )
